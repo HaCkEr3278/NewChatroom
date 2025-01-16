@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Draggable Cube</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      overflow: hidden;
+    }
+    .scene {
+      width: 300px;
+      height: 300px;
+      perspective: 800px;
+    }
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      transition: transform 0.1s ease-out;
+    }
+    .cube-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: pink;
+      border: 2px solid #ff69b4;
+      opacity: 0.9;
+    }
+    .front { transform: translateZ(150px); }
+    .back { transform: rotateY(180deg) translateZ(150px); }
+    .right { transform: rotateY(90deg) translateZ(150px); }
+    .left { transform: rotateY(-90deg) translateZ(150px); }
+    .top { transform: rotateX(90deg) translateZ(150px); }
+    .bottom { transform: rotateX(-90deg) translateZ(150px); }
+  </style>
+</head>
+<body>
+  <div class="scene">
+    <div class="cube">
+      <div class="cube-face front"></div>
+      <div class="cube-face back"></div>
+      <div class="cube-face right"></div>
+      <div class="cube-face left"></div>
+      <div class="cube-face top"></div>
+      <div class="cube-face bottom"></div>
+    </div>
+  </div>
+
+  <script>
+    const cube = document.querySelector('.cube');
+    let isDragging = false;
+    let startX, startY, currentX = 0, currentY = 0;
+
+    const startDrag = (e) => {
+      isDragging = true;
+      startX = e.clientX || e.touches[0].clientX;
+      startY = e.clientY || e.touches[0].clientY;
+    };
+
+    const drag = (e) => {
+      if (!isDragging) return;
+
+      const x = e.clientX || e.touches[0].clientX;
+      const y = e.clientY || e.touches[0].clientY;
+
+      const deltaX = x - startX;
+      const deltaY = y - startY;
+
+      currentX += deltaX * 0.5;
+      currentY -= deltaY * 0.5;
+
+      cube.style.transform = `rotateX(${currentY}deg) rotateY(${currentX}deg)`;
+
+      startX = x;
+      startY = y;
+    };
+
+    const endDrag = () => {
+      isDragging = false;
+    };
+
+    document.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', endDrag);
+
+    document.addEventListener('touchstart', startDrag);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', endDrag);
+  </script>
+</body>
+</html>
