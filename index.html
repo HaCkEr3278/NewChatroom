@@ -59,7 +59,7 @@
     let gunDamage = 10;
     let gameClock = new THREE.Clock();
     let shootCooldown = 0;
-    let isShooting = false;
+    let bullets = [];
 
     // Create player
     function createPlayer() {
@@ -109,7 +109,6 @@
     }
 
     // Shoot bullets
-    let bullets = [];
     function shoot() {
         if (shootCooldown > 0) return;
         shootCooldown = 0.5;
@@ -121,7 +120,7 @@
         scene.add(bullet);
         bullets.push(bullet);
 
-        // Update bullet movement
+        // Move bullets and check for collisions with zombies
         setInterval(() => {
             bullets.forEach(bullet => {
                 bullet.position.z -= bulletSpeed;
@@ -152,6 +151,9 @@
     const keyState = {};
     document.addEventListener('keydown', (e) => {
         keyState[e.key] = true;
+        if (e.key === " ") { // Spacebar to shoot
+            shoot();
+        }
     });
     document.addEventListener('keyup', (e) => {
         keyState[e.key] = false;
@@ -170,7 +172,6 @@
         const delta = gameClock.getDelta();
         handlePlayerMovement();
         updateZombies();
-        if (isShooting) shoot();
 
         shootCooldown -= delta;
 
