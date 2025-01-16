@@ -3,37 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Zombie Shooter with Health</title>
+    <title>AOT Survival Game: The Rumbling</title>
     <style>
         body { margin: 0; overflow: hidden; }
         canvas { display: block; }
-        #info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 16px;
-        }
-        #gameOver {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: red;
-            font-size: 36px;
-            display: none;
-        }
+        #timer { position: absolute; top: 20px; left: 20px; font-size: 30px; color: white; }
+        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 50px; display: none; }
     </style>
 </head>
 <body>
 
 <canvas id="gameCanvas"></canvas>
-<div id="info">
-    <p>Points: <span id="points">0</span></p>
-    <p>Level: <span id="level">1</span></p>
-    <p>Gun: <span id="gun">Basic</span></p>
-    <p>Player Health: <span id="playerHealth">100</span></p>
-</div>
+<div id="timer">Time Left: <span id="time">30</span></div>
 <div id="gameOver">GAME OVER</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -48,18 +29,10 @@
     document.body.appendChild(renderer.domElement);
 
     // Global variables
-    let points = 0;
-    let level = 1;
-    let gunType = "Basic";
-    let zombies = [];
-    let player;
-    let playerHealth = 100;
-    let playerSpeed = 0.1;
-    let bulletSpeed = 0.5;
-    let gunDamage = 10;
-    let gameClock = new THREE.Clock();
-    let shootCooldown = 0;
-    let bullets = [];
+    let player, clock, rumblingStartTime, timerInterval, rumblingActive = false;
+    let timeLeft = 30; // 30 seconds to survive
+    const playerSpeed = 0.2;
+    const town = [];
 
     // Create player
     function createPlayer() {
@@ -70,130 +43,96 @@
         scene.add(player);
     }
 
-    // Create zombies
-    function createZombie() {
-        const geometry = new THREE.SphereGeometry(1, 8, 8);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const zombie = new THREE.Mesh(geometry, material);
-        zombie.position.set(Math.random() * 50 - 25, 1, Math.random() * 50 - 25);
-        zombie.health = 30; // Each zombie has 30 health
-        scene.add(zombie);
-        zombies.push(zombie);
+    // Create homes and town buildings
+    function createTown() {
+        const homeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        for (let i = 0; i < 10; i++) {
+            const homeGeometry = new THREE.BoxGeometry(4, 4, 4);
+            const home = new THREE.Mesh(homeGeometry, homeMaterial);
+            home.position.set(Math.random() * 50 - 25, 2, Math.random() * 50 - 25);
+            town.push(home);
+            scene.add(home);
+        }
     }
 
-    // Update zombies (move towards the player)
-    function updateZombies() {
-        zombies.forEach(zombie => {
-            const direction = new THREE.Vector3(
-                player.position.x - zombie.position.x,
-                0,
-                player.position.z - zombie.position.z
-            );
-            direction.normalize();
-            zombie.position.add(direction.multiplyScalar(0.05)); // Move towards the player
-
-            // Check if the player is too close to a zombie
-            if (zombie.position.distanceTo(player.position) < 2) {
-                playerHealth -= 0.1; // Decrease player health when a zombie is too close
-                document.getElementById("playerHealth").innerText = Math.max(0, Math.floor(playerHealth));
+    // Start rumbling animation and timer
+    function startRumbling() {
+        rumblingStartTime = Date.now();
+        rumblingActive = true;
+        document.getElementById("gameOver").style.display = "none";
+        document.getElementById("time").innerText = timeLeft;
+        
+        // Start countdown timer
+        timerInterval = setInterval(() => {
+            let elapsedTime = Math.floor((Date.now() - rumblingStartTime) / 1000);
+            let remainingTime = timeLeft - elapsedTime;
+            document.getElementById("time").innerText = remainingTime;
+            
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                endGame("You survived!");
             }
-
-            // Remove zombies if they die
-            if (zombie.health <= 0) {
-                scene.remove(zombie);
-                zombies.splice(zombies.indexOf(zombie), 1);
-                points += 10;
-                document.getElementById("points").innerText = points;
-            }
-        });
-    }
-
-    // Shoot bullets
-    function shoot() {
-        if (shootCooldown > 0) return;
-        shootCooldown = 0.5;
-
-        const bulletGeometry = new THREE.SphereGeometry(0.2);
-        const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-        bullet.position.set(player.position.x, player.position.y + 1, player.position.z);
-        scene.add(bullet);
-        bullets.push(bullet);
-
-        // Move bullets and check for collisions with zombies
-        setInterval(() => {
-            bullets.forEach(bullet => {
-                bullet.position.z -= bulletSpeed;
-
-                zombies.forEach(zombie => {
-                    if (bullet.position.distanceTo(zombie.position) < 2) {
-                        zombie.health -= gunDamage;
-                        scene.remove(bullet);
-                        bullets.splice(bullets.indexOf(bullet), 1);
-                    }
-                });
-            });
-        }, 16);
+        }, 1000);
     }
 
     // Handle player movement
-    function handlePlayerMovement() {
-        const moveSpeed = 0.1;
-        if (keyState["w"]) player.position.z -= moveSpeed;
-        if (keyState["s"]) player.position.z += moveSpeed;
-        if (keyState["a"]) player.position.x -= moveSpeed;
-        if (keyState["d"]) player.position.x += moveSpeed;
-        camera.position.set(player.position.x, player.position.y + 2, player.position.z + 5);
-        camera.lookAt(player.position);
-    }
-
-    // Key handling for movement and shooting
     const keyState = {};
     document.addEventListener('keydown', (e) => {
         keyState[e.key] = true;
-        if (e.key === " ") { // Spacebar to shoot
-            shoot();
-        }
     });
     document.addEventListener('keyup', (e) => {
         keyState[e.key] = false;
     });
 
-    // Game Over check
-    function checkGameOver() {
-        if (playerHealth <= 0) {
-            document.getElementById("gameOver").style.display = "block"; // Show Game Over
-            cancelAnimationFrame(gameLoop);
+    // Move player based on WASD keys
+    function handlePlayerMovement() {
+        if (keyState["w"]) player.position.z -= playerSpeed;
+        if (keyState["s"]) player.position.z += playerSpeed;
+        if (keyState["a"]) player.position.x -= playerSpeed;
+        if (keyState["d"]) player.position.x += playerSpeed;
+
+        camera.position.set(player.position.x, player.position.y + 5, player.position.z + 10);
+        camera.lookAt(player.position);
+    }
+
+    // Check if player is out of bounds (escaped the rumbling area)
+    function checkPlayerEscape() {
+        if (player.position.z > 25 || player.position.z < -25 || player.position.x > 25 || player.position.x < -25) {
+            endGame("You escaped the rumbling!");
         }
     }
 
-    // Game Loop
+    // Game over logic
+    function endGame(message) {
+        document.getElementById("gameOver").innerText = message;
+        document.getElementById("gameOver").style.display = "block";
+        cancelAnimationFrame(gameLoop);
+    }
+
+    // Game loop
     function gameLoop() {
-        const delta = gameClock.getDelta();
         handlePlayerMovement();
-        updateZombies();
-
-        shootCooldown -= delta;
-
-        if (points >= level * 50) {
-            level++;
-            document.getElementById("level").innerText = level;
-            gunType = "Upgraded";
-            document.getElementById("gun").innerText = gunType;
-            gunDamage = 20; // Upgrade gun damage
+        checkPlayerEscape();
+        if (rumblingActive) {
+            let rumblingTime = Date.now() - rumblingStartTime;
+            if (rumblingTime < 5000) {
+                // Rumbling starts, apply shaking effect to ground
+                scene.background = new THREE.Color(Math.random() * 0xFFFFFF); // Change background color as rumbling
+            }
         }
-
-        checkGameOver(); // Check if the game is over
-
         renderer.render(scene, camera);
         requestAnimationFrame(gameLoop);
     }
 
     // Initialize game
     createPlayer();
-    for (let i = 0; i < 5; i++) createZombie();
+    createTown();
     gameLoop();
 
+    // Start the rumbling when the game starts
+    setTimeout(startRumbling, 2000); // Start rumbling 2 seconds after the game starts
+
 </script>
+
 </body>
 </html>
