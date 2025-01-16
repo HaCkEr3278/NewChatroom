@@ -3,161 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AOT Survival Game: The Rumbling</title>
+    <title>Mikasa vs Pieck Smash Simulator</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { display: block; }
-        #timer { position: absolute; top: 20px; left: 20px; font-size: 30px; color: white; }
+        body { margin: 0; overflow: hidden; background-color: #eee; }
+        canvas { display: block; margin: 0; padding: 0; }
         #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 50px; display: none; }
     </style>
 </head>
 <body>
 
 <canvas id="gameCanvas"></canvas>
-<div id="timer">Time Left: <span id="time">30</span></div>
 <div id="gameOver">GAME OVER</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 <script>
-    // Set up basic 3D scene
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas') });
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    // Set up canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    // Global variables
-    let player, clock, rumblingStartTime, timerInterval, rumblingActive = false;
-    let timeLeft = 30; // 30 seconds to survive
-    const playerSpeed = 0.2;
-    const titanSpeed = 0.05;
-    const town = [];
-    let titans = [];
+    // Characters and game state
+    let mikasa = { x: 100, y: canvas.height - 150, width: 50, height: 100, color: 'blue', health: 100, isJumping: false, velocityY: 0 };
+    let pieck = { x: canvas.width - 150, y: canvas.height - 150, width: 50, height: 100, color: 'green', health: 100 };
+    let keys = {};
 
-    // Create player (White)
-    function createPlayer() {
-        const geometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 8);
-        const material = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White player
-        player = new THREE.Mesh(geometry, material);
-        player.position.set(0, 1, 0);
-        scene.add(player);
+    // Game control variables
+    let attackCooldown = false;
+
+    // Draw characters and health bars
+    function drawCharacter(character) {
+        ctx.fillStyle = character.color;
+        ctx.fillRect(character.x, character.y, character.width, character.height);
     }
 
-    // Create Titans (Red)
-    function createTitan() {
-        const geometry = new THREE.CylinderGeometry(1, 1, 5, 8);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red titans
-        const titan = new THREE.Mesh(geometry, material);
-        titan.position.set(Math.random() * 50 - 25, 2, Math.random() * 50 - 25);
-        scene.add(titan);
-        titans.push(titan);
+    function drawHealthBar(character) {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(character.x, character.y - 20, character.width, 10);
+        ctx.fillStyle = 'green';
+        ctx.fillRect(character.x, character.y - 20, (character.width * character.health) / 100, 10);
     }
 
-    // Create homes and town buildings
-    function createTown() {
-        const homeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        for (let i = 0; i < 10; i++) {
-            const homeGeometry = new THREE.BoxGeometry(4, 4, 4);
-            const home = new THREE.Mesh(homeGeometry, homeMaterial);
-            home.position.set(Math.random() * 50 - 25, 2, Math.random() * 50 - 25);
-            town.push(home);
-            scene.add(home);
+    function checkCollisions() {
+        // Mikasa's attack range
+        if (mikasa.x + mikasa.width > pieck.x && mikasa.x < pieck.x + pieck.width &&
+            mikasa.y < pieck.y + pieck.height && mikasa.y + mikasa.height > pieck.y) {
+            pieck.health -= 1; // Mikasa hits Pieck
+        }
+
+        // Pieck's attack range
+        if (pieck.x + pieck.width > mikasa.x && pieck.x < mikasa.x + mikasa.width &&
+            pieck.y < mikasa.y + mikasa.height && pieck.y + pieck.height > mikasa.y) {
+            mikasa.health -= 1; // Pieck hits Mikasa
         }
     }
 
-    // Start rumbling animation and timer
-    function startRumbling() {
-        rumblingStartTime = Date.now();
-        rumblingActive = true;
-        document.getElementById("gameOver").style.display = "none";
-        document.getElementById("time").innerText = timeLeft;
-        
-        // Start countdown timer
-        timerInterval = setInterval(() => {
-            let elapsedTime = Math.floor((Date.now() - rumblingStartTime) / 1000);
-            let remainingTime = timeLeft - elapsedTime;
-            document.getElementById("time").innerText = remainingTime;
-            
-            if (remainingTime <= 0) {
-                clearInterval(timerInterval);
-                endGame("You survived!");
+    // Handle movement and attacks
+    function handleMovement() {
+        if (keys['w'] && !mikasa.isJumping) {
+            mikasa.velocityY = -12; // Mikasa jumps
+            mikasa.isJumping = true;
+        }
+        if (keys['a']) mikasa.x -= 5; // Mikasa moves left
+        if (keys['d']) mikasa.x += 5; // Mikasa moves right
+
+        if (keys['ArrowUp'] && !pieck.isJumping) {
+            pieck.velocityY = -12; // Pieck jumps
+            pieck.isJumping = true;
+        }
+        if (keys['ArrowLeft']) pieck.x -= 5; // Pieck moves left
+        if (keys['ArrowRight']) pieck.x += 5; // Pieck moves right
+    }
+
+    // Jumping physics
+    function handleJump() {
+        // Mikasa's jump logic
+        if (mikasa.isJumping) {
+            mikasa.y += mikasa.velocityY;
+            mikasa.velocityY += 0.8; // Gravity effect
+            if (mikasa.y >= canvas.height - 150) { // When Mikasa lands
+                mikasa.y = canvas.height - 150;
+                mikasa.isJumping = false;
+                mikasa.velocityY = 0;
             }
-        }, 1000);
-    }
+        }
 
-    // Handle player movement
-    const keyState = {};
-    document.addEventListener('keydown', (e) => {
-        keyState[e.key] = true;
-    });
-    document.addEventListener('keyup', (e) => {
-        keyState[e.key] = false;
-    });
-
-    // Move player based on WASD keys
-    function handlePlayerMovement() {
-        if (keyState["w"]) player.position.z -= playerSpeed;
-        if (keyState["s"]) player.position.z += playerSpeed;
-        if (keyState["a"]) player.position.x -= playerSpeed;
-        if (keyState["d"]) player.position.x += playerSpeed;
-
-        camera.position.set(player.position.x, player.position.y + 5, player.position.z + 10);
-        camera.lookAt(player.position);
-    }
-
-    // Titans move towards player
-    function moveTitans() {
-        titans.forEach(titan => {
-            const direction = new THREE.Vector3(
-                player.position.x - titan.position.x,
-                0,
-                player.position.z - titan.position.z
-            );
-            direction.normalize();
-            titan.position.add(direction.multiplyScalar(titanSpeed));
-        });
-    }
-
-    // Check if player is out of bounds (escaped the rumbling area)
-    function checkPlayerEscape() {
-        if (player.position.z > 25 || player.position.z < -25 || player.position.x > 25 || player.position.x < -25) {
-            endGame("You escaped the rumbling!");
+        // Pieck's jump logic
+        if (pieck.isJumping) {
+            pieck.y += pieck.velocityY;
+            pieck.velocityY += 0.8; // Gravity effect
+            if (pieck.y >= canvas.height - 150) { // When Pieck lands
+                pieck.y = canvas.height - 150;
+                pieck.isJumping = false;
+                pieck.velocityY = 0;
+            }
         }
     }
 
-    // Game over logic
-    function endGame(message) {
-        document.getElementById("gameOver").innerText = message;
-        document.getElementById("gameOver").style.display = "block";
-        cancelAnimationFrame(gameLoop);
+    // Handle attacks
+    function handleAttack() {
+        if (keys[' '] && !attackCooldown) { // Mikasa's normal attack (space)
+            attackCooldown = true;
+            setTimeout(() => attackCooldown = false, 500); // Attack cooldown
+        }
+
+        if (keys['Enter'] && !attackCooldown) { // Pieck's normal attack (Enter)
+            attackCooldown = true;
+            setTimeout(() => attackCooldown = false, 500); // Attack cooldown
+        }
     }
 
-    // Game loop
+    // End game if any character's health reaches 0
+    function checkGameOver() {
+        if (mikasa.health <= 0 || pieck.health <= 0) {
+            document.getElementById('gameOver').style.display = 'block';
+        }
+    }
+
+    // Main game loop
     function gameLoop() {
-        handlePlayerMovement();
-        moveTitans();
-        checkPlayerEscape();
-        if (rumblingActive) {
-            let rumblingTime = Date.now() - rumblingStartTime;
-            if (rumblingTime < 5000) {
-                // Rumbling starts, apply shaking effect to ground
-                scene.background = new THREE.Color(Math.random() * 0xFFFFFF); // Change background color as rumbling
-            }
-        }
-        renderer.render(scene, camera);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        handleMovement();
+        handleJump();
+        handleAttack();
+        checkCollisions();
+        checkGameOver();
+
+        drawCharacter(mikasa);
+        drawCharacter(pieck);
+        drawHealthBar(mikasa);
+        drawHealthBar(pieck);
+
         requestAnimationFrame(gameLoop);
     }
 
-    // Initialize game
-    createPlayer();
-    createTown();
-    for (let i = 0; i < 5; i++) createTitan(); // Create 5 titans
-    gameLoop();
+    // Set up key event listeners
+    document.addEventListener('keydown', (e) => keys[e.key] = true);
+    document.addEventListener('keyup', (e) => keys[e.key] = false);
 
-    // Start the rumbling when the game starts
-    setTimeout(startRumbling, 2000); // Start rumbling 2 seconds after the game starts
+    // Start game
+    gameLoop();
 
 </script>
 
