@@ -32,15 +32,27 @@
     let player, clock, rumblingStartTime, timerInterval, rumblingActive = false;
     let timeLeft = 30; // 30 seconds to survive
     const playerSpeed = 0.2;
+    const titanSpeed = 0.05;
     const town = [];
+    let titans = [];
 
-    // Create player
+    // Create player (White)
     function createPlayer() {
         const geometry = new THREE.CylinderGeometry(0.5, 0.5, 2, 8);
-        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff }); // White player
         player = new THREE.Mesh(geometry, material);
         player.position.set(0, 1, 0);
         scene.add(player);
+    }
+
+    // Create Titans (Red)
+    function createTitan() {
+        const geometry = new THREE.CylinderGeometry(1, 1, 5, 8);
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red titans
+        const titan = new THREE.Mesh(geometry, material);
+        titan.position.set(Math.random() * 50 - 25, 2, Math.random() * 50 - 25);
+        scene.add(titan);
+        titans.push(titan);
     }
 
     // Create homes and town buildings
@@ -95,6 +107,19 @@
         camera.lookAt(player.position);
     }
 
+    // Titans move towards player
+    function moveTitans() {
+        titans.forEach(titan => {
+            const direction = new THREE.Vector3(
+                player.position.x - titan.position.x,
+                0,
+                player.position.z - titan.position.z
+            );
+            direction.normalize();
+            titan.position.add(direction.multiplyScalar(titanSpeed));
+        });
+    }
+
     // Check if player is out of bounds (escaped the rumbling area)
     function checkPlayerEscape() {
         if (player.position.z > 25 || player.position.z < -25 || player.position.x > 25 || player.position.x < -25) {
@@ -112,6 +137,7 @@
     // Game loop
     function gameLoop() {
         handlePlayerMovement();
+        moveTitans();
         checkPlayerEscape();
         if (rumblingActive) {
             let rumblingTime = Date.now() - rumblingStartTime;
@@ -127,6 +153,7 @@
     // Initialize game
     createPlayer();
     createTown();
+    for (let i = 0; i < 5; i++) createTitan(); // Create 5 titans
     gameLoop();
 
     // Start the rumbling when the game starts
