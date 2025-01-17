@@ -3,206 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ramen Nightmare</title>
+    <title>Five Nights at Freddy's - Prototype</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #1a1a1a;
-            color: #f2f2f2;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-            overflow: hidden;
-        }
-        .container {
-            padding: 20px;
-            background-color: #333;
-            margin-top: 50px;
-            border-radius: 10px;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        h1 {
-            color: #ff5733;
-            text-shadow: 2px 2px 5px #000;
-        }
-        h2 {
-            font-size: 1.5em;
-        }
-        p {
-            font-size: 1.2em;
-            line-height: 1.5;
-        }
-        .game-description {
-            background-color: #444;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 10px;
-        }
-        .instructions {
-            background-color: #444;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 10px;
-        }
-        .button {
-            background-color: #ff5733;
+            font-family: Arial, sans-serif;
+            background-color: #222;
             color: white;
-            padding: 15px;
-            font-size: 1.2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #game-container {
+            text-align: center;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 8px;
+            width: 600px;
+            position: relative;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #camera {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+        #status {
             margin-top: 20px;
         }
-        .button:hover {
-            background-color: #c13d1f;
-        }
-        .game-play {
+        #animatronics {
             margin-top: 30px;
+            color: #f00;
+            font-size: 24px;
+            font-weight: bold;
         }
-        .alert {
-            background-color: #ff0000;
-            color: white;
-            padding: 10px;
-            margin-top: 20px;
-            font-size: 1.1em;
-            border-radius: 5px;
-        }
-        .animation {
+        .camera-view {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            animation: fadeIn 2s forwards;
         }
-        .animation h1 {
-            color: #ff5733;
-            margin-top: 40%;
-            font-size: 3em;
-        }
-        .animation p {
-            color: white;
-            font-size: 1.5em;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        .task-status {
-            background-color: #444;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 10px;
-            font-size: 1.2em;
+        .camera-active {
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <!-- Opening Animation -->
-    <div class="animation" id="animation">
-        <h1>Ramen Nightmare</h1>
-        <p>Prepare for your night shift...</p>
-    </div>
+<div id="game-container">
+    <h1>Five Nights at Freddy's - Prototype</h1>
+    <p id="night-status">Night 1: 12:00 AM</p>
+    <p id="power-status">Power: 100%</p>
+    <p id="camera">Camera is offline.</p>
+    <button id="check-cameras" onclick="checkCameras()">Check Cameras</button>
+    <button id="use-power" onclick="usePower()">Use Power</button>
+    <div id="status"></div>
+    <div id="animatronics"></div>
 
-    <div class="container">
-        <h1>Ramen Nightmare</h1>
-        <div class="game-description">
-            <h2>Game Concept</h2>
-            <p>Welcome to *Ramen Nightmare*. Set in a haunted ramen shop, you must survive your night shift while dealing with cursed kitchen utensils and uncovering the dark history behind the restaurant. Will you make it through the night, or will you be consumed by the spirits that haunt the shop?</p>
-        </div>
-        
-        <div class="instructions">
-            <h2>Game Instructions</h2>
-            <p>In this survival horror game, you must manage your tasks in the ramen shop while dealing with haunted kitchen tools. Here are the rules and mechanics:</p>
-            <ul>
-                <li><strong>Survival Gameplay:</strong> Complete your tasks before the haunted objects get you.</li>
-                <li><strong>Haunted Utensils:</strong> Objects like a rolling pin, broth spoon, and noodle box come to life. Beware of their movements!</li>
-                <li><strong>Security Tools:</strong> Use cameras and locks to protect yourself. But be careful, resources are limited!</li>
-                <li><strong>Resource Management:</strong> Balance time between preparing ramen and avoiding possessed objects.</li>
-                <li><strong>Survive the Night:</strong> Your goal is to last through the hours until morning comes.</li>
-            </ul>
-            <p><strong>Prepare for unsettling noises, strange movements, and creepy encounters...</strong></p>
-        </div>
-        
-        <div class="game-play">
-            <h2>How to Play</h2>
-            <p>Click the button below to begin your first night shift in the haunted ramen shop. Can you make it through until morning?</p>
-            <button class="button" onclick="startGame()">Start the Game</button>
-        </div>
-        
-        <div class="task-status" id="task-status" style="display: none;">
-            <h2>Task Status</h2>
-            <p>Tasks remaining: <span id="remaining-tasks">5</span></p>
-            <button class="button" onclick="completeTask()">Complete Task</button>
-        </div>
-        
-        <div class="alert" id="game-alert" style="display:none;">
-            <p><strong>Warning!</strong> You have encountered a haunted object. Use your tools wisely!</p>
-        </div>
-        
-    </div>
+    <!-- Camera Views -->
+    <div id="camera1" class="camera-view">Camera 1: Hallway view.</div>
+    <div id="camera2" class="camera-view">Camera 2: Lobby view.</div>
+    <div id="camera3" class="camera-view">Camera 3: Kitchen view.</div>
+</div>
 
-    <script>
-        let remainingTasks = 5;
-        let gameOver = false;
+<script>
+    let nightTime = 0; // Track time (in minutes)
+    let power = 100; // Power starts at 100%
+    let camerasOnline = false;
+    let animatronicsMoving = false;
+    let animatronics = ["Freddy", "Chica", "Bonnie", "Foxy"];
+    let activeCamera = null;
+    let isJumpScare = false;
 
-        // Start the game: Show animation, hide game description
-        function startGame() {
-            document.getElementById("animation").style.display = "none";
-            document.getElementById("task-status").style.display = "block";
-            document.getElementById("game-alert").style.display = "none";
-            alert("Your night shift has started. Survive the night and complete your tasks!");
-            
-            // Start haunted events
-            startHauntedEvents();
+    // Update the game status (time, power, camera)
+    function updateStatus() {
+        document.getElementById('night-status').innerText = `Night 1: ${formatTime(nightTime)}`;
+        document.getElementById('power-status').innerText = `Power: ${power}%`;
+        document.getElementById('camera').innerText = camerasOnline ? 'Camera is online.' : 'Camera is offline.';
+        document.getElementById('animatronics').innerText = animatronicsMoving ? `${animatronics.join(', ')} are on the move!` : '';
+        if (isJumpScare) {
+            document.getElementById('status').innerText = 'A Freddy animatronic is near!';
+        } else {
+            document.getElementById('status').innerText = '';
+        }
+    }
+
+    function formatTime(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}:${mins < 10 ? '0' : ''}${mins} AM`;
+    }
+
+    function checkCameras() {
+        if (power <= 0) {
+            alert('No power left!');
+            return;
         }
 
-        // Simulate haunted events every few seconds
-        function startHauntedEvents() {
-            setInterval(function() {
-                if (gameOver) return; // Stop events if game is over
+        camerasOnline = true;
+        activeCamera = "camera1"; // Example, can switch between multiple cameras.
+        usePower();
+        isJumpScare = Math.random() < 0.1; // 10% chance of jumpscare
+        updateCameraView();
+        updateStatus();
+    }
 
-                let showAlert = Math.random() > 0.5; // Random chance of haunted object encounter
-                if (showAlert) {
-                    document.getElementById("game-alert").style.display = "block";
-                    setTimeout(() => {
-                        document.getElementById("game-alert").style.display = "none";
-                    }, 3000); // Hide alert after 3 seconds
-                }
-
-                // If all tasks are complete, end game
-                if (remainingTasks <= 0) {
-                    gameOver = true;
-                    alert("You survived the night! Congratulations!");
-                }
-            }, 5000); // Haunted event every 5 seconds for demo purposes
-        }
-
-        // Simulate completing a task
-        function completeTask() {
-            if (gameOver) return;
-
-            if (remainingTasks > 0) {
-                remainingTasks--;
-                document.getElementById("remaining-tasks").innerText = remainingTasks;
-
-                if (remainingTasks <= 0) {
-                    document.getElementById("task-status").style.display = "none";
-                    alert("All tasks are complete! You made it through the night.");
-                }
+    function usePower() {
+        if (power > 0) {
+            power -= 10; // Each action (checking cameras, etc.) consumes power
+            nightTime += 5; // Time progresses
+            if (power <= 0) {
+                alert('Power has run out!');
             }
         }
-    </script>
+        if (nightTime >= 720) { // Night ends at 6:00 AM (720 minutes)
+            alert('You survived the night!');
+            nightTime = 0;
+            power = 100;
+        }
+        updateStatus();
+    }
+
+    function updateCameraView() {
+        // Hide all cameras
+        document.querySelectorAll('.camera-view').forEach(camera => {
+            camera.classList.remove('camera-active');
+        });
+
+        // Show the selected camera
+        if (activeCamera) {
+            document.getElementById(activeCamera).classList.add('camera-active');
+        }
+    }
+
+    // Simulate animatronics movement
+    setInterval(() => {
+        if (Math.random() < 0.1) { // 10% chance of animatronics moving
+            animatronicsMoving = true;
+        } else {
+            animatronicsMoving = false;
+        }
+
+        if (Math.random() < 0.05 && camerasOnline && !isJumpScare) { // 5% chance of jumpscare
+            isJumpScare = true;
+            alert("Jumpscare! Freddy has caught you!");
+        }
+
+        updateStatus();
+    }, 3000); // Simulate every 3 seconds
+
+    updateStatus();
+</script>
+
 </body>
 </html>
