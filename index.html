@@ -3,227 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DnD Adventure Game</title>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Ramen Nightmare</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #f2f2f2;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            text-align: center;
         }
         .container {
-            max-width: 800px;
-            margin: 20px auto;
             padding: 20px;
-            background: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #333;
+            margin-top: 50px;
+            border-radius: 10px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        button {
-            margin: 5px;
-            padding: 10px 20px;
-            font-size: 16px;
+        h1 {
+            color: #ff5733;
+            text-shadow: 2px 2px 5px #000;
+        }
+        h2 {
+            font-size: 1.5em;
+        }
+        p {
+            font-size: 1.2em;
+            line-height: 1.5;
+        }
+        .game-description {
+            background-color: #444;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .instructions {
+            background-color: #444;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+        .button {
+            background-color: #ff5733;
+            color: white;
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #c13d1f;
+        }
+        .game-play {
+            margin-top: 30px;
+        }
+        .alert {
+            background-color: #ff0000;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 1.1em;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>DnD Adventure Game</h1>
-        <div id="game">
-            <div id="output"></div>
-            <div id="actions"></div>
+        <h1>Ramen Nightmare</h1>
+        <div class="game-description">
+            <h2>Game Concept</h2>
+            <p>Welcome to *Ramen Nightmare*. Set in a haunted ramen shop, you must survive your night shift while dealing with cursed kitchen utensils and uncovering the dark history behind the restaurant. Will you make it through the night, or will you be consumed by the spirits that haunt the shop?</p>
         </div>
+        
+        <div class="instructions">
+            <h2>Game Instructions</h2>
+            <p>In this survival horror game, you must manage your tasks in the ramen shop while dealing with haunted kitchen tools. Here are the rules and mechanics:</p>
+            <ul>
+                <li><strong>Survival Gameplay:</strong> Complete your tasks before the haunted objects get you.</li>
+                <li><strong>Haunted Utensils:</strong> Objects like a rolling pin, broth spoon, and noodle box come to life. Beware of their movements!</li>
+                <li><strong>Security Tools:</strong> Use cameras and locks to protect yourself. But be careful, resources are limited!</li>
+                <li><strong>Resource Management:</strong> You must balance time between preparing ramen and avoiding possessed objects.</li>
+                <li><strong>Survive the Night:</strong> Your goal is to last through the hours until morning comes.</li>
+            </ul>
+            <p><strong>Prepare for unsettling noises, strange movements, and creepy encounters...</strong></p>
+        </div>
+        
+        <div class="game-play">
+            <h2>How to Play</h2>
+            <p>Click the button below to begin your first night shift in the haunted ramen shop. Can you make it through until morning?</p>
+            <button class="button" onclick="startGame()">Start the Game</button>
+        </div>
+        
+        <div class="alert" id="game-alert" style="display:none;">
+            <p><strong>Warning!</strong> You have encountered a haunted object. Use your tools wisely!</p>
+        </div>
+        
     </div>
 
     <script>
-        class Character {
-            constructor(name, charClass) {
-                this.name = name;
-                this.charClass = charClass;
-                this.inventory = [];
-                this.health = charClass === "Warrior" ? 150 : 100;
-                this.damage = charClass === "Mage" ? 25 : charClass === "Rogue" ? 15 : 20;
-                this.cooldown = 0; // For Mage cooldown system
-            }
+        function startGame() {
+            document.getElementById("game-alert").style.display = "none";
+            alert("You are now working your night shift at the haunted ramen shop! Stay alert.");
+            // Add more interactive gameplay logic here...
         }
 
-        class Game {
-            constructor() {
-                this.character = null;
-                this.locations = ["a dark forest", "a bustling city", "a desolate desert", "a snowy mountain", "an abandoned castle"];
-                this.spawnLocation = "";
-                this.turns = 0;
-                this.storyIndex = 0;
-                this.stories = [
-                    "You discover a hidden cave filled with glowing crystals. Inside, you find a small chest.",
-                    "You come across an abandoned village. The silence is eerie, but something catches your eye.",
-                    "You find a sparkling stream and decide to rest. Nearby, there's a strange carved stone.",
-                    "You encounter a towering tree with golden leaves. At its base, there seems to be an inscription.",
-                    "You walk into a clearing and spot a strange, ancient statue covered in moss."
-                ];
-                this.init();
+        // For simulated haunted events
+        setInterval(function() {
+            let showAlert = Math.random() > 0.5; // Random chance of haunted object encounter
+            if (showAlert) {
+                document.getElementById("game-alert").style.display = "block";
             }
-
-            init() {
-                const output = document.getElementById("output");
-                const actions = document.getElementById("actions");
-                output.innerHTML = "<p>Welcome to the DnD Adventure Game!</p>";
-
-                actions.innerHTML = `
-                    <label>Enter your character's name: <input id="charName" type="text"></label><br>
-                    <label>Choose your class: 
-                        <select id="charClass">
-                            <option value="Warrior">Warrior</option>
-                            <option value="Mage">Mage</option>
-                            <option value="Rogue">Rogue</option>
-                        </select>
-                    </label><br>
-                    <button onclick="game.createCharacter()">Start Game</button>
-                `;
-            }
-
-            createCharacter() {
-                const name = document.getElementById("charName").value;
-                const charClass = document.getElementById("charClass").value;
-
-                if (!name) {
-                    alert("Please enter a name.");
-                    return;
-                }
-
-                this.character = new Character(name, charClass);
-                this.spawnLocation = this.randomSpawn();
-
-                this.updateOutput(`<p>You are ${this.character.name}, the ${this.character.charClass}. You spawn in ${this.spawnLocation}.</p>`);
-                this.showActions();
-            }
-
-            randomSpawn() {
-                return this.locations[Math.floor(Math.random() * this.locations.length)];
-            }
-
-            updateOutput(message) {
-                const output = document.getElementById("output");
-                output.innerHTML += message;
-            }
-
-            showActions() {
-                const actions = document.getElementById("actions");
-                actions.innerHTML = `
-                    <button onclick="game.explore()">Explore</button>
-                    <button onclick="game.rest()">Rest</button>
-                    <button onclick="game.checkInventory()">Check Inventory</button>
-                    <button onclick="game.exitGame()">Exit Game</button>
-                `;
-            }
-
-            checkInventory() {
-                if (this.character.inventory.length === 0) {
-                    this.updateOutput("<p>Your inventory is empty.</p>");
-                } else {
-                    this.updateOutput(`<p>Your inventory contains: ${this.character.inventory.join(", ")}.</p>`);
-                }
-            }
-
-            explore() {
-                this.turns++;
-                if (this.turns === 50) {
-                    this.updateOutput("<p>A mighty mid-level boss appears!</p>");
-                    this.startFight(true);
-                } else if (this.turns === 100) {
-                    this.updateOutput("<p>The final boss emerges, its power is overwhelming!</p>");
-                    this.startFight(true, true);
-                } else {
-                    const encounterChance = Math.random();
-                    if (encounterChance < 0.3) {
-                        this.updateOutput("<p>You encounter a wild beast!</p>");
-                        this.startFight();
-                    } else {
-                        const story = this.stories[this.storyIndex % this.stories.length];
-                        this.updateOutput(`<p>${story}</p>`);
-                        this.storyIndex++;
-                    }
-                }
-            }
-
-            startFight(isBoss = false, isFinalBoss = false) {
-                let beastHealth = isFinalBoss ? 300 : isBoss ? 150 : Math.floor(Math.random() * 31) + 20;
-                this.updateOutput(`<p>A ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"} appears with ${beastHealth} health!</p>`);
-
-                const fightInterval = setInterval(() => {
-                    if (this.character.health <= 0 || beastHealth <= 0) {
-                        clearInterval(fightInterval);
-                        if (this.character.health <= 0) {
-                            this.updateOutput("<p>You have perished. Game over.</p>");
-                            this.endGame();
-                        } else {
-                            this.updateOutput(`<p>You defeated the ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"}!</p>`);
-                            if (!isFinalBoss) this.character.inventory.push(isBoss ? "boss trophy" : "beast claw");
-                        }
-                        return;
-                    }
-
-                    if (this.character.cooldown > 0) {
-                        this.character.cooldown--;
-                        this.updateOutput(`<p>${this.character.name} is preparing their next move.</p>`);
-                    } else {
-                        let playerDamage = 0;
-                        if (this.character.charClass === "Mage") {
-                            const spell = prompt("Choose a spell: Frostbolt, Lightning, or Flame").toLowerCase();
-                            if (spell === "frostbolt") {
-                                playerDamage = 20;
-                                if (Math.random() < 0.25) {
-                                    this.updateOutput("<p>The beast is frozen and skips its next turn!</p>");
-                                    beastHealth -= playerDamage;
-                                    return;
-                                }
-                            } else if (spell === "lightning") {
-                                playerDamage = 15;
-                                this.updateOutput("<p>The beast is zapped and takes damage every turn!</p>");
-                            } else if (spell === "flame") {
-                                playerDamage = 10;
-                                this.updateOutput("<p>The beast is burning and will take damage over time!</p>");
-                            }
-                            this.character.cooldown = 1; // Mage cooldown
-                        } else if (this.character.charClass === "Rogue") {
-                            playerDamage = 15;
-                            if (Math.random() < 0.5) {
-                                this.updateOutput("<p>You dodged the beast's attack!</p>");
-                                beastHealth -= playerDamage;
-                                return;
-                            }
-                        } else {
-                            playerDamage = 20;
-                        }
-
-                        beastHealth -= playerDamage;
-                        this.updateOutput(`<p>You dealt ${playerDamage} damage to the ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"}. Health left: ${beastHealth}</p>`);
-                    }
-
-                    const beastDamage = Math.floor(Math.random() * 11) + (isFinalBoss ? 20 : isBoss ? 10 : 5);
-                    this.character.health -= beastDamage;
-                    this.updateOutput(`<p>The ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"} attacks you for ${beastDamage} damage. Your health: ${this.character.health}</p>`);
-                }, 2000);
-            }
-
-            rest() {
-                const heal = Math.floor(Math.random() * 16) + 10;
-                this.character.health = Math.min(this.character.charClass === "Warrior" ? 150 : 100, this.character.health + heal);
-                this.updateOutput(`<p>You rested and regained ${heal} health. Your health is now ${this.character.health}.</p>`);
-            }
-
-            exitGame() {
-                this.updateOutput("<p>Thank you for playing!</p>");
-                this.endGame();
-            }
-
-            endGame() {
-                document.getElementById("actions").innerHTML = "";
-            }
-        }
-
-        const game = new Game();
+        }, 5000); // Haunted event every 5 seconds for demo purposes
     </script>
 </body>
 </html>
