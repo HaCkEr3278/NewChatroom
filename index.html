@@ -52,6 +52,14 @@
                 this.character = null;
                 this.locations = ["a dark forest", "a bustling city", "a desolate desert", "a snowy mountain", "an abandoned castle"];
                 this.spawnLocation = "";
+                this.storyIndex = 0;
+                this.stories = [
+                    "You discover a hidden cave filled with glowing crystals. Inside, you find a small chest.",
+                    "You come across an abandoned village. The silence is eerie, but something catches your eye.",
+                    "You find a sparkling stream and decide to rest. Nearby, there's a strange carved stone.",
+                    "You encounter a towering tree with golden leaves. At its base, there seems to be an inscription.",
+                    "You walk into a clearing and spot a strange, ancient statue covered in moss."
+                ];
                 this.init();
             }
 
@@ -117,49 +125,12 @@
             }
 
             explore() {
-                const events = [
-                    "You find a treasure chest!",
-                    "A wild beast appears!",
-                    "You meet a mysterious traveler.",
-                    "You stumble upon an ancient artifact.",
-                    "You fall into a hidden trap!"
-                ];
-                const event = events[Math.floor(Math.random() * events.length)];
-                this.updateOutput(`<p>${event}</p>`);
-
-                if (event === "You find a treasure chest!") {
-                    const loot = ["gold coins", "a magical potion", "a rare gemstone"];
-                    const item = loot[Math.floor(Math.random() * loot.length)];
-                    this.updateOutput(`<p>Inside, you find ${item}!</p>`);
-                    this.character.inventory.push(item);
-
-                } else if (event === "A wild beast appears!") {
-                    this.fightBeast();
-
-                } else if (event === "You meet a mysterious traveler.") {
-                    if (confirm("Do you trade with the traveler?")) {
-                        const tradeItem = ["a map", "a rare herb", "an enchanted ring"];
-                        const item = tradeItem[Math.floor(Math.random() * tradeItem.length)];
-                        this.updateOutput(`<p>The traveler gives you ${item}.</p>`);
-                        this.character.inventory.push(item);
-                    } else {
-                        this.updateOutput("<p>The traveler walks away.</p>");
-                    }
-
-                } else if (event === "You stumble upon an ancient artifact.") {
-                    const artifact = ["a glowing sword", "a mystical staff", "a shield of light"];
-                    const item = artifact[Math.floor(Math.random() * artifact.length)];
-                    this.updateOutput(`<p>You discover ${item}. It feels powerful!</p>`);
-                    this.character.inventory.push(item);
-
-                } else if (event === "You fall into a hidden trap!") {
-                    const damage = Math.floor(Math.random() * 16) + 5;
-                    this.character.health -= damage;
-                    this.updateOutput(`<p>You took ${damage} damage. Your health is now ${this.character.health}.</p>`);
-                    if (this.character.health <= 0) {
-                        this.updateOutput("<p>You have perished. Game over.</p>");
-                        this.endGame();
-                    }
+                if (this.storyIndex < this.stories.length) {
+                    const story = this.stories[this.storyIndex];
+                    this.updateOutput(`<p>${story}</p>`);
+                    this.storyIndex++;
+                } else {
+                    this.updateOutput("<p>You have explored all the stories available.</p>");
                 }
             }
 
@@ -171,9 +142,9 @@
                     const attack = confirm("Do you attack the beast?");
 
                     if (attack) {
-                        const damage = this.character.damage;
-                        beastHealth -= damage;
-                        this.updateOutput(`<p>You hit the beast for ${damage} damage. Beast's health is now ${beastHealth}.</p>`);
+                        const playerDamage = this.character.damage;
+                        beastHealth -= playerDamage;
+                        this.updateOutput(`<p>You hit the beast for ${playerDamage} damage. Beast's health is now ${beastHealth}.</p>`);
 
                         if (beastHealth > 0) {
                             const beastDamage = Math.floor(Math.random() * 11) + 5;
