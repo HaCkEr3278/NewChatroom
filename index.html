@@ -3,163 +3,172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proxy Button</title>
+  <title>Dockerfile for Node.js / Bun Project</title>
   <style>
-    .button {
-      padding: 15px 30px;
-      font-size: 1.2em;
-      cursor: pointer;
-      border: none;
-      border-radius: 30px;
+    body {
+      font-family: 'Verdana', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f4f8;
+      color: #333;
+      line-height: 1.8;
+      background-image: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    }
+    header {
       background-color: #4CAF50;
       color: white;
-      transition: background-color 0.3s;
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 3em;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      margin-bottom: 20px;
+    }
+    .container {
+      width: 80%;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 1s ease-out;
+    }
+    h2 {
+      color: #4CAF50;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 1.8em;
+      margin-top: 20px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    pre {
+      background-color: #282c34;
+      color: #f4f4f4;
+      padding: 25px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 1.1em;
+      margin-top: 15px;
+      border-left: 5px solid #4CAF50;
+    }
+    code {
+      background-color: #f4f4f4;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 1.1em;
+    }
+    .note {
+      color: #ff9800;
+      font-weight: bold;
+      background: #fff3cd;
+      padding: 10px;
+      border-radius: 5px;
+      border-left: 5px solid #ffc107;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 10px 0;
+    }
+    .improvement {
+      background: #d1ecf1;
+      padding: 20px;
+      margin-top: 20px;
+      border-left: 5px solid #17a2b8;
+      border-radius: 10px;
+      font-size: 1.1em;
+      animation: slideIn 1s ease-out;
+    }
+    ul {
+      line-height: 1.8;
+      padding-left: 20px;
+      font-size: 1.1em;
+    }
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      font-size: 1.2em;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+      margin-top: 40px;
+      border-top: 5px solid #4CAF50;
     }
 
-    .button:hover {
-      background-color: #45a049;
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
     }
 
-    .button:active {
-      transform: scale(0.98);
+    @keyframes slideIn {
+      0% { transform: translateX(20px); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Button to Launch Proxy -->
-  <button onclick="launchProxyInAboutBlank()" class="button">
-    Launch Proxy in about:blank
-  </button>
+  <header>
+    Dockerfile for Node.js / Bun Project
+  </header>
 
-  <script>
-    // Function to launch the proxy inside about:blank
-    function launchProxyInAboutBlank() {
-      // Debugging message
-      console.log("Launch button clicked");
+  <div class="container">
+    <section>
+      <h2>Dockerfile Overview</h2>
+      <pre>
+        FROM bun:latest
 
-      // HTML content for the proxy page
-      const proxyPage = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Proxy Page</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 0;
-              background-color: #f0f4f8;
-              color: #333;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-            }
+        ENV NODE_ENV=production
 
-            .container {
-              width: 100%;
-              max-width: 1200px;
-              background-color: #fff;
-              border-radius: 12px;
-              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-              overflow: hidden;
-            }
+        WORKDIR /public
 
-            header {
-              background-color: #007BFF;
-              color: white;
-              padding: 20px;
-              text-align: center;
-            }
+        COPY ["bun.lockb", "package.json", "./"]
 
-            header h1 {
-              font-size: 2.5em;
-              margin: 0;
-            }
+        RUN bun install
 
-            .iframe-wrapper {
-              position: relative;
-              height: 80vh;
-              width: 100%;
-            }
+        COPY . .
 
-            iframe {
-              width: 100%;
-              height: 100%;
-              border: none;
-              border-radius: 8px;
-            }
+        CMD ["bun", "run", "start"]
+      </pre>
+    </section>
 
-            footer {
-              background-color: #f1f1f1;
-              text-align: center;
-              padding: 15px;
-              font-size: 0.9em;
-              color: #777;
-            }
+    <section>
+      <h2>Explanation of the Dockerfile:</h2>
+      <ul>
+        <li><strong>FROM bun:latest:</strong> Uses the official Bun image as the base, optimized for Bun's JavaScript runtime.</li>
+        <li><strong>ENV NODE_ENV=production:</strong> Sets the environment variable for production, optimizing for performance in live environments.</li>
+        <li><strong>WORKDIR /public:</strong> Sets `/public` as the working directory inside the container where your application files will live.</li>
+        <li><strong>COPY ["bun.lockb", "package.json", "./"]:</strong> Copies the Bun lockfile and package manifest to ensure consistent dependency management.</li>
+        <li><strong>RUN bun install:</strong> Installs dependencies defined in `bun.lockb` and `package.json` using Bun.</li>
+        <li><strong>COPY . .:</strong> Copies the rest of your application code into the container.</li>
+        <li><strong>CMD ["bun", "run", "start"]:</strong> Defines the default command to run the application using Bun.</li>
+      </ul>
+    </section>
 
-            footer a {
-              color: #007BFF;
-              text-decoration: none;
-            }
+    <section class="improvement">
+      <h2>Improvements & Best Practices</h2>
+      <p>
+        <strong>Enhance your Dockerfile's performance, security, and reliability:</strong>
+      </p>
+      <ul>
+        <li><span class="note">Optimizing Docker Caching: Separate dependency installation from application copy to cache layers efficiently.</span></li>
+        <li>Ensure sensitive files (like `.env` and `.git`) are excluded by adding a <code>.dockerignore</code> file to your project.</li>
+        <li>For added reliability, consider adding a health check to monitor the status of the container and automatically restart it if needed.</li>
+      </ul>
+    </section>
 
-            footer a:hover {
-              text-decoration: underline;
-            }
+    <section>
+      <h2>Example `.dockerignore` File</h2>
+      <pre>
+        .git
+        node_modules
+        .env
+        *.log
+      </pre>
+    </section>
 
-            .loading {
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              font-size: 1.2em;
-              color: #333;
-              opacity: 0.7;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <header>
-              <h1>Proxy Browser</h1>
-            </header>
-
-            <div class="iframe-wrapper">
-              <iframe src="https://example.com" id="proxyIframe" onload="hideLoading()"></iframe>
-              <div class="loading" id="loadingText">Loading the site...</div>
-            </div>
-
-            <footer>
-              <p>&copy; 2025 Proxy Browser | <a href="#">Terms</a> | <a href="#">Privacy</a></p>
-            </footer>
-          </div>
-
-          <script>
-            function hideLoading() {
-              document.getElementById("loadingText").style.display = "none";
-            }
-          </script>
-        </body>
-        </html>
-      `;
-
-      // Open a new window with about:blank
-      const newWindow = window.open('about:blank', '_blank');
-      
-      if (newWindow) {
-        console.log("New window opened");
-        // Write the proxy page content into the new window
-        newWindow.document.write(proxyPage);
-        newWindow.document.close();
-      } else {
-        alert('Unable to open a new window. Please check pop-up settings.');
-        console.log("Failed to open new window");
-      }
-    }
-  </script>
+    <footer>
+      <p>Dockerfile by YourName | A Simple Guide for Node.js and Bun Applications</p>
+    </footer>
+  </div>
 
 </body>
 </html>
