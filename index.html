@@ -13,6 +13,7 @@
             margin: 0;
             padding: 0;
             text-align: center;
+            overflow: hidden;
         }
         .container {
             padding: 20px;
@@ -70,9 +71,43 @@
             font-size: 1.1em;
             border-radius: 5px;
         }
+        .animation {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            animation: fadeIn 2s forwards;
+        }
+        .animation h1 {
+            color: #ff5733;
+            margin-top: 40%;
+            font-size: 3em;
+        }
+        .animation p {
+            color: white;
+            font-size: 1.5em;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Opening Animation -->
+    <div class="animation" id="animation">
+        <h1>Ramen Nightmare</h1>
+        <p>Prepare for your night shift...</p>
+    </div>
+
     <div class="container">
         <h1>Ramen Nightmare</h1>
         <div class="game-description">
@@ -87,7 +122,7 @@
                 <li><strong>Survival Gameplay:</strong> Complete your tasks before the haunted objects get you.</li>
                 <li><strong>Haunted Utensils:</strong> Objects like a rolling pin, broth spoon, and noodle box come to life. Beware of their movements!</li>
                 <li><strong>Security Tools:</strong> Use cameras and locks to protect yourself. But be careful, resources are limited!</li>
-                <li><strong>Resource Management:</strong> You must balance time between preparing ramen and avoiding possessed objects.</li>
+                <li><strong>Resource Management:</strong> Balance time between preparing ramen and avoiding possessed objects.</li>
                 <li><strong>Survive the Night:</strong> Your goal is to last through the hours until morning comes.</li>
             </ul>
             <p><strong>Prepare for unsettling noises, strange movements, and creepy encounters...</strong></p>
@@ -107,18 +142,19 @@
 
     <script>
         function startGame() {
-            document.getElementById("game-alert").style.display = "none";
+            // Hide opening animation and game description once the player starts
+            document.getElementById("animation").style.display = "none"; 
+            document.getElementById("game-alert").style.display = "none"; 
             alert("You are now working your night shift at the haunted ramen shop! Stay alert.");
-            // Add more interactive gameplay logic here...
+            
+            // Simulated haunted events with animation
+            setInterval(function() {
+                let showAlert = Math.random() > 0.5; // Random chance of haunted object encounter
+                if (showAlert) {
+                    document.getElementById("game-alert").style.display = "block";
+                }
+            }, 5000); // Haunted event every 5 seconds for demo purposes
         }
-
-        // For simulated haunted events
-        setInterval(function() {
-            let showAlert = Math.random() > 0.5; // Random chance of haunted object encounter
-            if (showAlert) {
-                document.getElementById("game-alert").style.display = "block";
-            }
-        }, 5000); // Haunted event every 5 seconds for demo purposes
     </script>
 </body>
 </html>
