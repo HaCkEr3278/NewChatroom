@@ -1,1 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy with about:blank Button and URL Loading</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      color: #333;
+    }
+
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+      font-size: 2em;
+      font-weight: bold;
+    }
+
+    .button-container {
+      margin: 30px;
+    }
+
+    .open-button {
+      padding: 15px 30px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .open-button:hover {
+      background-color: #45a049;
+    }
+
+    iframe {
+      width: 80%;
+      height: 600px;
+      border: none;
+      margin-top: 20px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>Proxy Page with about:blank Button and URL Loader</header>
+
+  <div class="button-container">
+    <!-- Button to open about:blank page -->
+    <button class="open-button" onclick="openAboutBlank()">Open about:blank and Load URL</button>
+  </div>
+
+  <!-- The iframe where the URL will be loaded -->
+  <iframe id="aboutBlankIframe"></iframe>
+
+  <footer>
+    Proxy Example | Created for Dynamic Pages
+  </footer>
+
+  <script>
+    // Function to open about:blank page and load a URL inside the iframe
+    function openAboutBlank() {
+      // The URL to load in the about:blank iframe
+      const urlToLoad = 'https://www.example.com'; // You can change this URL to whatever you need
+
+      // Get the iframe element
+      const iframe = document.getElementById('aboutBlankIframe');
+
+      // Create an about:blank document and set the URL in it
+      const aboutBlankDoc = iframe.contentWindow.document;
+
+      // Open about:blank in the iframe and load the URL
+      aboutBlankDoc.open();
+      aboutBlankDoc.write('<html><head><title>Loading...</title></head><body><h1>Loading...</h1><iframe src="' + urlToLoad + '" style="width:100%; height:100%; border:none;"></iframe></body></html>');
+      aboutBlankDoc.close();
+    }
+  </script>
+
+</body>
+</html>
 
