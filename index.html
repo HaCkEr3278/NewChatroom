@@ -44,16 +44,7 @@
                 this.inventory = [];
                 this.health = charClass === "Warrior" ? 150 : 100;
                 this.damage = charClass === "Mage" ? 25 : charClass === "Rogue" ? 15 : 20;
-            }
-
-            specialAbility() {
-                if (this.charClass === "Mage") {
-                    return "casts a powerful spell";
-                } else if (this.charClass === "Rogue") {
-                    return Math.random() < 0.5 ? "goes invisible and avoids the attack" : "fails to go invisible";
-                } else if (this.charClass === "Warrior") {
-                    return "delivers a mighty blow";
-                }
+                this.cooldown = 0; // For Mage cooldown system
             }
         }
 
@@ -122,7 +113,7 @@
                     <button onclick="game.checkInventory()">Check Inventory</button>
                     <button onclick="game.explore()">Explore</button>
                     <button onclick="game.rest()">Rest</button>
-                    <button onclick="game.fightBeast()">Fight Beast</button>
+                    <button onclick="game.startFight()">Start Fight</button>
                     <button onclick="game.exitGame()">Exit Game</button>
                 `;
             }
@@ -145,43 +136,64 @@
                 }
             }
 
-            fightBeast() {
+            startFight() {
                 let beastHealth = Math.floor(Math.random() * 31) + 20;
                 this.updateOutput(`<p>A wild beast appears with ${beastHealth} health!</p>`);
 
-                while (beastHealth > 0 && this.character.health > 0) {
-                    const attack = confirm("Do you attack the beast?");
-
-                    if (attack) {
-                        const special = this.character.specialAbility();
-                        if (this.character.charClass === "Rogue" && special.includes("avoids")) {
-                            this.updateOutput("<p>You avoided the beast's attack!</p>");
+                const fightInterval = setInterval(() => {
+                    if (this.character.health <= 0 || beastHealth <= 0) {
+                        clearInterval(fightInterval);
+                        if (this.character.health <= 0) {
+                            this.updateOutput("<p>You have perished. Game over.</p>");
+                            this.endGame();
                         } else {
-                            const playerDamage = this.character.damage;
-                            beastHealth -= playerDamage;
-                            this.updateOutput(`<p>You ${special} and hit the beast for ${playerDamage} damage. Beast's health is now ${beastHealth}.</p>`);
-
-                            if (beastHealth > 0) {
-                                const beastDamage = Math.floor(Math.random() * 11) + 5;
-                                this.character.health -= beastDamage;
-                                this.updateOutput(`<p>The beast attacks you for ${beastDamage} damage. Your health is now ${this.character.health}.</p>`);
-                            }
+                            this.updateOutput("<p>You defeated the beast and found a claw as a trophy.</p>");
+                            this.character.inventory.push("beast claw");
                         }
-                    } else {
-                        this.updateOutput("<p>You ran away from the beast.</p>");
                         return;
                     }
-                }
 
-                if (beastHealth <= 0) {
-                    this.updateOutput("<p>You defeated the beast and found a claw as a trophy.</p>");
-                    this.character.inventory.push("beast claw");
-                }
+                    if (this.character.cooldown > 0) {
+                        this.character.cooldown--;
+                        this.updateOutput(`<p>${this.character.name} is preparing their next move.</p>`);
+                    } else {
+                        let playerDamage = 0;
+                        if (this.character.charClass === "Mage") {
+                            const spell = prompt("Choose a spell: Frostbolt, Lightning, or Flame").toLowerCase();
+                            if (spell === "frostbolt") {
+                                playerDamage = 20;
+                                if (Math.random() < 0.25) {
+                                    this.updateOutput("<p>The beast is frozen and skips its next turn!</p>");
+                                    beastHealth -= playerDamage;
+                                    return;
+                                }
+                            } else if (spell === "lightning") {
+                                playerDamage = 15;
+                                this.updateOutput("<p>The beast is zapped and takes damage every turn!</p>");
+                            } else if (spell === "flame") {
+                                playerDamage = 10;
+                                this.updateOutput("<p>The beast is burning and will take damage over time!</p>");
+                            }
+                            this.character.cooldown = 1; // Mage cooldown
+                        } else if (this.character.charClass === "Rogue") {
+                            playerDamage = 15;
+                            if (Math.random() < 0.5) {
+                                this.updateOutput("<p>You dodged the beast's attack!</p>");
+                                beastHealth -= playerDamage;
+                                return;
+                            }
+                        } else {
+                            playerDamage = 20;
+                        }
 
-                if (this.character.health <= 0) {
-                    this.updateOutput("<p>You have perished. Game over.</p>");
-                    this.endGame();
-                }
+                        beastHealth -= playerDamage;
+                        this.updateOutput(`<p>You dealt ${playerDamage} damage to the beast. Beast's health: ${beastHealth}</p>`);
+                    }
+
+                    const beastDamage = Math.floor(Math.random() * 11) + 5;
+                    this.character.health -= beastDamage;
+                    this.updateOutput(`<p>The beast attacks you for ${beastDamage} damage. Your health: ${this.character.health}</p>`);
+                }, 2000);
             }
 
             rest() {
