@@ -53,6 +53,7 @@
                 this.character = null;
                 this.locations = ["a dark forest", "a bustling city", "a desolate desert", "a snowy mountain", "an abandoned castle"];
                 this.spawnLocation = "";
+                this.turns = 0;
                 this.storyIndex = 0;
                 this.stories = [
                     "You discover a hidden cave filled with glowing crystals. Inside, you find a small chest.",
@@ -110,10 +111,9 @@
             showActions() {
                 const actions = document.getElementById("actions");
                 actions.innerHTML = `
-                    <button onclick="game.checkInventory()">Check Inventory</button>
                     <button onclick="game.explore()">Explore</button>
                     <button onclick="game.rest()">Rest</button>
-                    <button onclick="game.startFight()">Start Fight</button>
+                    <button onclick="game.checkInventory()">Check Inventory</button>
                     <button onclick="game.exitGame()">Exit Game</button>
                 `;
             }
@@ -127,18 +127,29 @@
             }
 
             explore() {
-                if (this.storyIndex < this.stories.length) {
-                    const story = this.stories[this.storyIndex];
-                    this.updateOutput(`<p>${story}</p>`);
-                    this.storyIndex++;
+                this.turns++;
+                if (this.turns === 50) {
+                    this.updateOutput("<p>A mighty mid-level boss appears!</p>");
+                    this.startFight(true);
+                } else if (this.turns === 100) {
+                    this.updateOutput("<p>The final boss emerges, its power is overwhelming!</p>");
+                    this.startFight(true, true);
                 } else {
-                    this.updateOutput("<p>You have explored all the stories available.</p>");
+                    const encounterChance = Math.random();
+                    if (encounterChance < 0.3) {
+                        this.updateOutput("<p>You encounter a wild beast!</p>");
+                        this.startFight();
+                    } else {
+                        const story = this.stories[this.storyIndex % this.stories.length];
+                        this.updateOutput(`<p>${story}</p>`);
+                        this.storyIndex++;
+                    }
                 }
             }
 
-            startFight() {
-                let beastHealth = Math.floor(Math.random() * 31) + 20;
-                this.updateOutput(`<p>A wild beast appears with ${beastHealth} health!</p>`);
+            startFight(isBoss = false, isFinalBoss = false) {
+                let beastHealth = isFinalBoss ? 300 : isBoss ? 150 : Math.floor(Math.random() * 31) + 20;
+                this.updateOutput(`<p>A ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"} appears with ${beastHealth} health!</p>`);
 
                 const fightInterval = setInterval(() => {
                     if (this.character.health <= 0 || beastHealth <= 0) {
@@ -147,8 +158,8 @@
                             this.updateOutput("<p>You have perished. Game over.</p>");
                             this.endGame();
                         } else {
-                            this.updateOutput("<p>You defeated the beast and found a claw as a trophy.</p>");
-                            this.character.inventory.push("beast claw");
+                            this.updateOutput(`<p>You defeated the ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"}!</p>`);
+                            if (!isFinalBoss) this.character.inventory.push(isBoss ? "boss trophy" : "beast claw");
                         }
                         return;
                     }
@@ -187,12 +198,12 @@
                         }
 
                         beastHealth -= playerDamage;
-                        this.updateOutput(`<p>You dealt ${playerDamage} damage to the beast. Beast's health: ${beastHealth}</p>`);
+                        this.updateOutput(`<p>You dealt ${playerDamage} damage to the ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"}. Health left: ${beastHealth}</p>`);
                     }
 
-                    const beastDamage = Math.floor(Math.random() * 11) + 5;
+                    const beastDamage = Math.floor(Math.random() * 11) + (isFinalBoss ? 20 : isBoss ? 10 : 5);
                     this.character.health -= beastDamage;
-                    this.updateOutput(`<p>The beast attacks you for ${beastDamage} damage. Your health: ${this.character.health}</p>`);
+                    this.updateOutput(`<p>The ${isFinalBoss ? "final boss" : isBoss ? "boss" : "beast"} attacks you for ${beastDamage} damage. Your health: ${this.character.health}</p>`);
                 }, 2000);
             }
 
