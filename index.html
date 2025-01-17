@@ -1,122 +1,160 @@
-// Function to open a proxy page inside about:blank
-function launchProxyInAboutBlank() {
-  // HTML content for the proxy page
-  const proxyPage = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Proxy Page</title>
-      <style>
-        /* Styles for the proxy page */
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          background-color: #f0f4f8;
-          color: #333;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-        }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proxy Button</title>
+  <style>
+    /* Button Style */
+    .button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      cursor: pointer;
+      border: none;
+      border-radius: 30px;
+      background-color: #4CAF50;
+      color: white;
+      transition: background-color 0.3s;
+    }
 
-        .container {
-          width: 100%;
-          max-width: 1200px;
-          background-color: #fff;
-          border-radius: 12px;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-          overflow: hidden;
-        }
+    .button:hover {
+      background-color: #45a049;
+    }
 
-        header {
-          background-color: #007BFF;
-          color: white;
-          padding: 20px;
-          text-align: center;
-        }
+    .button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
 
-        header h1 {
-          font-size: 2.5em;
-          margin: 0;
-        }
+  <!-- Button to Launch Proxy -->
+  <button onclick="launchProxyInAboutBlank()" class="button">
+    Launch Proxy in about:blank
+  </button>
 
-        .iframe-wrapper {
-          position: relative;
-          height: 80vh;
-          width: 100%;
-        }
+  <script>
+    // Function to launch the proxy inside about:blank
+    function launchProxyInAboutBlank() {
+      // HTML content for the proxy page
+      const proxyPage = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Proxy Page</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 0;
+              background-color: #f0f4f8;
+              color: #333;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+            }
 
-        iframe {
-          width: 100%;
-          height: 100%;
-          border: none;
-          border-radius: 8px;
-        }
+            .container {
+              width: 100%;
+              max-width: 1200px;
+              background-color: #fff;
+              border-radius: 12px;
+              box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+              overflow: hidden;
+            }
 
-        footer {
-          background-color: #f1f1f1;
-          text-align: center;
-          padding: 15px;
-          font-size: 0.9em;
-          color: #777;
-        }
+            header {
+              background-color: #007BFF;
+              color: white;
+              padding: 20px;
+              text-align: center;
+            }
 
-        footer a {
-          color: #007BFF;
-          text-decoration: none;
-        }
+            header h1 {
+              font-size: 2.5em;
+              margin: 0;
+            }
 
-        footer a:hover {
-          text-decoration: underline;
-        }
+            .iframe-wrapper {
+              position: relative;
+              height: 80vh;
+              width: 100%;
+            }
 
-        .loading {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 1.2em;
-          color: #333;
-          opacity: 0.7;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <header>
-          <h1>Proxy Browser</h1>
-        </header>
+            iframe {
+              width: 100%;
+              height: 100%;
+              border: none;
+              border-radius: 8px;
+            }
 
-        <div class="iframe-wrapper">
-          <iframe src="https://example.com" id="proxyIframe" onload="hideLoading()"></iframe>
-          <div class="loading" id="loadingText">Loading the site...</div>
-        </div>
+            footer {
+              background-color: #f1f1f1;
+              text-align: center;
+              padding: 15px;
+              font-size: 0.9em;
+              color: #777;
+            }
 
-        <footer>
-          <p>&copy; 2025 Proxy Browser | <a href="#">Terms</a> | <a href="#">Privacy</a></p>
-        </footer>
-      </div>
+            footer a {
+              color: #007BFF;
+              text-decoration: none;
+            }
 
-      <script>
-        // Hide the loading message once the iframe content is ready
-        function hideLoading() {
-          document.getElementById("loadingText").style.display = "none";
-        }
-      </script>
-    </body>
-    </html>
-  `;
+            footer a:hover {
+              text-decoration: underline;
+            }
 
-  // Open a new window with about:blank
-  const newWindow = window.open('about:blank', '_blank');
-  if (newWindow) {
-    // Write the proxy page content into the new window
-    newWindow.document.write(proxyPage);
-    newWindow.document.close();
-  } else {
-    alert('Unable to open a new window. Please check pop-up settings.');
-  }
-}
+            .loading {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              font-size: 1.2em;
+              color: #333;
+              opacity: 0.7;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <header>
+              <h1>Proxy Browser</h1>
+            </header>
+
+            <div class="iframe-wrapper">
+              <iframe src="https://example.com" id="proxyIframe" onload="hideLoading()"></iframe>
+              <div class="loading" id="loadingText">Loading the site...</div>
+            </div>
+
+            <footer>
+              <p>&copy; 2025 Proxy Browser | <a href="#">Terms</a> | <a href="#">Privacy</a></p>
+            </footer>
+          </div>
+
+          <script>
+            function hideLoading() {
+              document.getElementById("loadingText").style.display = "none";
+            }
+          </script>
+        </body>
+        </html>
+      `;
+
+      // Open a new window with about:blank
+      const newWindow = window.open('about:blank', '_blank');
+      if (newWindow) {
+        // Write the proxy page content into the new window
+        newWindow.document.write(proxyPage);
+        newWindow.document.close();
+      } else {
+        alert('Unable to open a new window. Please check pop-up settings.');
+      }
+    }
+  </script>
+
+</body>
+</html>
