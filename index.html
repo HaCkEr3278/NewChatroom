@@ -1,151 +1,105 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mikasa vs Pieck Smash Simulator</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: #eee; }
-        canvas { display: block; margin: 0; padding: 0; }
-        #gameOver { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 50px; display: none; }
-    </style>
-</head>
-<body>
+import random
 
-<canvas id="gameCanvas"></canvas>
-<div id="gameOver">GAME OVER</div>
-
-<script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Set up canvas size
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    // Characters and game state
-    let mikasa = { x: 100, y: canvas.height - 150, width: 50, height: 100, color: 'blue', health: 100, isJumping: false, velocityY: 0 };
-    let pieck = { x: canvas.width - 150, y: canvas.height - 150, width: 50, height: 100, color: 'green', health: 100 };
-    let keys = {};
-
-    // Game control variables
-    let attackCooldown = false;
-
-    // Draw characters and health bars
-    function drawCharacter(character) {
-        ctx.fillStyle = character.color;
-        ctx.fillRect(character.x, character.y, character.width, character.height);
+def create_character():
+    return {
+        "name": input("Enter your character's name: "),
+        "class": input("Choose your class (e.g., Warrior, Mage, Rogue): "),
+        "inventory": [],
+        "health": 100,
     }
 
-    function drawHealthBar(character) {
-        ctx.fillStyle = 'red';
-        ctx.fillRect(character.x, character.y - 20, character.width, 10);
-        ctx.fillStyle = 'green';
-        ctx.fillRect(character.x, character.y - 20, (character.width * character.health) / 100, 10);
-    }
+def random_spawn():
+    locations = ["a dark forest", "a bustling city", "a desolate desert", "a snowy mountain", "an abandoned castle"]
+    return random.choice(locations)
 
-    function checkCollisions() {
-        // Mikasa's attack range
-        if (mikasa.x + mikasa.width > pieck.x && mikasa.x < pieck.x + pieck.width &&
-            mikasa.y < pieck.y + pieck.height && mikasa.y + mikasa.height > pieck.y) {
-            pieck.health -= 1; // Mikasa hits Pieck
-        }
+def display_inventory(inventory):
+    if inventory:
+        print("Your inventory contains:")
+        for item in inventory:
+            print(f"- {item}")
+    else:
+        print("Your inventory is empty.")
 
-        // Pieck's attack range
-        if (pieck.x + pieck.width > mikasa.x && pieck.x < mikasa.x + mikasa.width &&
-            pieck.y < mikasa.y + mikasa.height && pieck.y + pieck.height > mikasa.y) {
-            mikasa.health -= 1; // Pieck hits Mikasa
-        }
-    }
+def encounter_event(character):
+    events = [
+        "You find a treasure chest!",
+        "A wild beast appears!",
+        "You meet a mysterious traveler.",
+        "You stumble upon an ancient artifact.",
+        "You fall into a hidden trap!"
+    ]
+    event = random.choice(events)
+    print(event)
 
-    // Handle movement and attacks
-    function handleMovement() {
-        if (keys['w'] && !mikasa.isJumping) {
-            mikasa.velocityY = -12; // Mikasa jumps
-            mikasa.isJumping = true;
-        }
-        if (keys['a']) mikasa.x -= 5; // Mikasa moves left
-        if (keys['d']) mikasa.x += 5; // Mikasa moves right
+    if event == "You find a treasure chest!":
+        loot = random.choice(["gold coins", "a magical potion", "a rare gemstone"])
+        print(f"Inside, you find {loot}!")
+        character["inventory"].append(loot)
 
-        if (keys['ArrowUp'] && !pieck.isJumping) {
-            pieck.velocityY = -12; // Pieck jumps
-            pieck.isJumping = true;
-        }
-        if (keys['ArrowLeft']) pieck.x -= 5; // Pieck moves left
-        if (keys['ArrowRight']) pieck.x += 5; // Pieck moves right
-    }
+    elif event == "A wild beast appears!":
+        action = input("Do you fight (f) or run (r)? ").lower()
+        if action == "f":
+            outcome = random.choice(["win", "lose"])
+            if outcome == "win":
+                print("You defeated the beast and found a claw as a trophy.")
+                character["inventory"].append("beast claw")
+            else:
+                damage = random.randint(10, 30)
+                character["health"] -= damage
+                print(f"You lost the fight and took {damage} damage. Your health is now {character['health']}")
+        else:
+            print("You successfully escaped but found nothing.")
 
-    // Jumping physics
-    function handleJump() {
-        // Mikasa's jump logic
-        if (mikasa.isJumping) {
-            mikasa.y += mikasa.velocityY;
-            mikasa.velocityY += 0.8; // Gravity effect
-            if (mikasa.y >= canvas.height - 150) { // When Mikasa lands
-                mikasa.y = canvas.height - 150;
-                mikasa.isJumping = false;
-                mikasa.velocityY = 0;
-            }
-        }
+    elif event == "You meet a mysterious traveler.":
+        trade = input("Do you trade with the traveler (y/n)? ").lower()
+        if trade == "y":
+            item = random.choice(["a map", "a rare herb", "an enchanted ring"])
+            print(f"The traveler gives you {item} in exchange for a favor.")
+            character["inventory"].append(item)
+        else:
+            print("The traveler walks away.")
 
-        // Pieck's jump logic
-        if (pieck.isJumping) {
-            pieck.y += pieck.velocityY;
-            pieck.velocityY += 0.8; // Gravity effect
-            if (pieck.y >= canvas.height - 150) { // When Pieck lands
-                pieck.y = canvas.height - 150;
-                pieck.isJumping = false;
-                pieck.velocityY = 0;
-            }
-        }
-    }
+    elif event == "You stumble upon an ancient artifact.":
+        artifact = random.choice(["a glowing sword", "a mystical staff", "a shield of light"])
+        print(f"You discover {artifact}. It feels powerful!")
+        character["inventory"].append(artifact)
 
-    // Handle attacks
-    function handleAttack() {
-        if (keys[' '] && !attackCooldown) { // Mikasa's normal attack (space)
-            attackCooldown = true;
-            setTimeout(() => attackCooldown = false, 500); // Attack cooldown
-        }
+    elif event == "You fall into a hidden trap!":
+        damage = random.randint(5, 20)
+        character["health"] -= damage
+        print(f"You took {damage} damage. Your health is now {character['health']}.")
 
-        if (keys['Enter'] && !attackCooldown) { // Pieck's normal attack (Enter)
-            attackCooldown = true;
-            setTimeout(() => attackCooldown = false, 500); // Attack cooldown
-        }
-    }
+def main():
+    print("Welcome to the DnD Adventure Game!")
+    character = create_character()
+    spawn_location = random_spawn()
+    print(f"You spawn in {spawn_location}.")
 
-    // End game if any character's health reaches 0
-    function checkGameOver() {
-        if (mikasa.health <= 0 || pieck.health <= 0) {
-            document.getElementById('gameOver').style.display = 'block';
-        }
-    }
+    while character["health"] > 0:
+        print("\nWhat would you like to do?")
+        print("1. Check inventory")
+        print("2. Explore")
+        print("3. Rest")
+        print("4. Exit game")
 
-    // Main game loop
-    function gameLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        choice = input("Enter your choice: ")
 
-        handleMovement();
-        handleJump();
-        handleAttack();
-        checkCollisions();
-        checkGameOver();
+        if choice == "1":
+            display_inventory(character["inventory"])
+        elif choice == "2":
+            encounter_event(character)
+        elif choice == "3":
+            heal = random.randint(10, 25)
+            character["health"] = min(100, character["health"] + heal)
+            print(f"You rested and regained {heal} health. Your health is now {character['health']}.")
+        elif choice == "4":
+            print("Thank you for playing!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
-        drawCharacter(mikasa);
-        drawCharacter(pieck);
-        drawHealthBar(mikasa);
-        drawHealthBar(pieck);
+        if character["health"] <= 0:
+            print("You have perished. Game over.")
 
-        requestAnimationFrame(gameLoop);
-    }
-
-    // Set up key event listeners
-    document.addEventListener('keydown', (e) => keys[e.key] = true);
-    document.addEventListener('keyup', (e) => keys[e.key] = false);
-
-    // Start game
-    gameLoop();
-
-</script>
-
-</body>
-</html>
+if __name__ == "__main__":
+    main()
