@@ -3,41 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Site Proxy</title>
+  <title>Enhanced Proxy</title>
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
     .button {
-      padding: 10px 20px;
-      margin: 5px;
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 1.2em;
       cursor: pointer;
       border: none;
-      background-color: #007BFF;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.2);
       color: white;
-      border-radius: 5px;
-      font-size: 16px;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .button:hover {
+      background: rgba(255, 255, 255, 0.4);
+      transform: scale(1.1);
+    }
+
+    .button:active {
+      transform: scale(1.05);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      text-align: center;
+      font-size: 0.9em;
+      opacity: 0.7;
     }
   </style>
 </head>
 <body>
-  <!-- Button to launch the proxy -->
-  <button onclick="launchProxyInAboutBlank()" id="launchab" class="button play">
+  <h1>Welcome to the Proxy</h1>
+  <p>Launch the proxy in a secure, hidden window or use other features below.</p>
+
+  <!-- Buttons -->
+  <button onclick="launchProxyInAboutBlank()" id="launchab" class="button">
     Launch Proxy in about:blank
   </button>
 
+  <footer>
+    &copy; 2025 Proxy App. Built with ❤️ for privacy.
+  </footer>
+
   <script>
     function launchProxyInAboutBlank() {
-      // Replace this with your actual proxy's URL, hosted on a secure server
+      // Replace this with your proxy URL
       const proxyURL = "https://your-dynamic-proxy-domain.example.com";
 
-      // Open a new blank tab
       const newWindow = window.open('about:blank', '_blank');
       if (newWindow) {
-        // Inject the proxy's content into the new tab
+        // Inject proxy into the new tab
         newWindow.document.write(`
           <html>
             <head>
               <title>Proxy</title>
               <script>
-                // Strip identifying headers for obfuscation
+                // Remove tracking headers for obfuscation
                 fetch = (originalFetch => {
                   return (...args) => {
                     const [resource, config] = args;
@@ -45,8 +94,8 @@
                       ...config,
                       headers: {
                         ...config?.headers,
-                        'Referer': '', // Remove referer
-                        'User-Agent': 'Mozilla/5.0 (compatible; Proxy)', // Generic user-agent
+                        'Referer': '',
+                        'User-Agent': 'Mozilla/5.0 (compatible; Proxy)',
                       },
                     };
                     return originalFetch(resource, updatedConfig);
@@ -54,15 +103,15 @@
                 })(fetch);
               </script>
             </head>
-            <body style="margin:0; padding:0; overflow:hidden;">
-              <!-- Load the proxy inside an iframe -->
+            <body style="margin:0; padding:0; overflow:hidden; background:#111; color:#fff;">
               <iframe src="${proxyURL}" style="width:100%; height:100%; border:none;"></iframe>
             </body>
           </html>
         `);
         newWindow.document.close();
       } else {
-        alert('Unable to open a new window.');
+        // Alert if the new window cannot be opened
+        alert("Unable to open a new window. Please allow pop-ups and try again.");
       }
     }
   </script>
