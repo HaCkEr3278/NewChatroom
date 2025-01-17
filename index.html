@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Proxy Button</title>
   <style>
-    /* Button Style */
     .button {
       padding: 15px 30px;
       font-size: 1.2em;
@@ -36,6 +35,9 @@
   <script>
     // Function to launch the proxy inside about:blank
     function launchProxyInAboutBlank() {
+      // Debugging message
+      console.log("Launch button clicked");
+
       // HTML content for the proxy page
       const proxyPage = `
         <!DOCTYPE html>
@@ -146,12 +148,15 @@
 
       // Open a new window with about:blank
       const newWindow = window.open('about:blank', '_blank');
+      
       if (newWindow) {
+        console.log("New window opened");
         // Write the proxy page content into the new window
         newWindow.document.write(proxyPage);
         newWindow.document.close();
       } else {
         alert('Unable to open a new window. Please check pop-up settings.');
+        console.log("Failed to open new window");
       }
     }
   </script>
