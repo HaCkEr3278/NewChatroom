@@ -6,6 +6,7 @@ def create_character():
         "class": input("Choose your class (e.g., Warrior, Mage, Rogue): "),
         "inventory": [],
         "health": 100,
+        "damage": random.randint(10, 20)  # Added base damage
     }
 
 def random_spawn():
@@ -19,6 +20,44 @@ def display_inventory(inventory):
             print(f"- {item}")
     else:
         print("Your inventory is empty.")
+
+def fight_beast(character):
+    beast_health = random.randint(20, 50)
+    print(f"A wild beast appears with {beast_health} health!")
+
+    while beast_health > 0 and character["health"] > 0:
+        action = input("Do you attack (a) or try to run (r)? ").lower()
+        if action == "a":
+            damage = character["damage"]
+            beast_health -= damage
+            print(f"You hit the beast for {damage} damage. Beast's health is now {beast_health}.")
+
+            if beast_health > 0:
+                beast_damage = random.randint(5, 15)
+                character["health"] -= beast_damage
+                print(f"The beast attacks you for {beast_damage} damage. Your health is now {character['health']}.")
+
+        elif action == "r":
+            if random.choice([True, False]):
+                print("You successfully escaped!")
+                return
+            else:
+                print("You failed to escape!")
+                beast_damage = random.randint(5, 15)
+                character["health"] -= beast_damage
+                print(f"The beast attacks you for {beast_damage} damage. Your health is now {character['health']}.")
+        else:
+            print("Invalid action. The beast takes the opportunity to attack!")
+            beast_damage = random.randint(5, 15)
+            character["health"] -= beast_damage
+            print(f"The beast attacks you for {beast_damage} damage. Your health is now {character['health']}.")
+
+    if beast_health <= 0:
+        print("You defeated the beast and found a claw as a trophy.")
+        character["inventory"].append("beast claw")
+
+    if character["health"] <= 0:
+        print("You were defeated by the beast.")
 
 def encounter_event(character):
     events = [
@@ -37,18 +76,7 @@ def encounter_event(character):
         character["inventory"].append(loot)
 
     elif event == "A wild beast appears!":
-        action = input("Do you fight (f) or run (r)? ").lower()
-        if action == "f":
-            outcome = random.choice(["win", "lose"])
-            if outcome == "win":
-                print("You defeated the beast and found a claw as a trophy.")
-                character["inventory"].append("beast claw")
-            else:
-                damage = random.randint(10, 30)
-                character["health"] -= damage
-                print(f"You lost the fight and took {damage} damage. Your health is now {character['health']}")
-        else:
-            print("You successfully escaped but found nothing.")
+        fight_beast(character)
 
     elif event == "You meet a mysterious traveler.":
         trade = input("Do you trade with the traveler (y/n)? ").lower()
