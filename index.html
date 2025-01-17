@@ -3,213 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dockerfile for Node.js / Bun Project</title>
+  <title>Proxy with Search & about:blank</title>
   <style>
-    /* Global Styles */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
       margin: 0;
       padding: 0;
-      background: #f5f7fa;
-      color: #333;
-      line-height: 1.8;
-      background: linear-gradient(135deg, #6a82fb, #fc5c7d);
-      background-size: 400% 400%;
-      animation: gradientBackground 10s ease infinite;
-      transition: all 0.5s ease-in-out;
-    }
-    header {
-      background: rgba(255, 255, 255, 0.85);
-      color: #4CAF50;
       text-align: center;
-      padding: 50px;
-      font-size: 3em;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-      margin-bottom: 30px;
-      border-radius: 10px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(10px);
+      color: #333;
     }
 
-    .container {
-      width: 80%;
-      margin: 20px auto;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      animation: fadeIn 2s ease-out;
-      backdrop-filter: blur(15px);
-      overflow: hidden;
-    }
-
-    h2 {
-      color: #4CAF50;
-      font-size: 2.5em;
-      margin-top: 0;
-      font-family: 'Poppins', sans-serif;
-      letter-spacing: 1px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-      text-transform: uppercase;
-      margin-bottom: 30px;
-    }
-
-    pre {
-      background-color: #2d2d2d;
-      color: #f5f5f5;
-      padding: 30px;
-      border-radius: 15px;
-      font-size: 1.1em;
-      overflow-x: auto;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease-in-out;
-    }
-
-    pre:hover {
-      transform: scale(1.05);
-    }
-
-    code {
-      background-color: #f0f4f8;
-      padding: 4px 8px;
-      border-radius: 5px;
-      font-size: 1.1em;
-    }
-
-    .note {
-      background: rgba(255, 193, 7, 0.1);
+    header {
+      background-color: #4CAF50;
+      color: white;
       padding: 20px;
-      border-left: 5px solid #ff9800;
-      margin-top: 20px;
+      font-size: 2em;
       font-weight: bold;
-      font-size: 1.2em;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
     }
 
-    .improvement {
-      background: rgba(23, 162, 184, 0.1);
-      padding: 30px;
+    .search-container {
+      margin: 30px auto;
+      padding: 15px;
+      width: 50%;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.2em;
+      border: 2px solid #4CAF50;
+      border-radius: 5px;
+    }
+
+    .content {
       margin-top: 30px;
-      border-left: 5px solid #17a2b8;
-      font-size: 1.2em;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      background: white;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
       border-radius: 10px;
-      animation: slideIn 1s ease-out;
+      display: none; /* Initially hidden until search is performed */
     }
 
-    ul {
-      line-height: 1.8;
-      font-size: 1.1em;
-      padding-left: 20px;
+    .search-results {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .search-results li {
+      padding: 10px;
+      background: #e9f7ef;
+      border-radius: 5px;
+      margin: 5px 0;
     }
 
     footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
       background-color: #333;
       color: white;
       text-align: center;
-      padding: 20px;
-      font-size: 1.2em;
-      position: relative;
-      bottom: 0;
-      width: 100%;
-      margin-top: 40px;
-      border-top: 5px solid #4CAF50;
+      padding: 10px;
     }
 
-    /* Animations */
-    @keyframes gradientBackground {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    .aboutblank {
+      display: none;
     }
 
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+    .show-blank {
+      display: block;
+      background-color: #fff;
+      color: #888;
+      padding: 50px;
+      font-size: 1.5em;
+      border-radius: 10px;
     }
 
-    @keyframes slideIn {
-      0% { transform: translateX(20px); opacity: 0; }
-      100% { transform: translateX(0); opacity: 1; }
-    }
-
-    /* Hover Effects */
-    .hover-effect {
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .hover-effect:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
   </style>
 </head>
 <body>
 
-  <header>
-    Dockerfile for Node.js / Bun Project
-  </header>
+  <header>Proxy Page with Search & about:blank</header>
 
-  <div class="container">
-    <section>
-      <h2>Dockerfile Overview</h2>
-      <pre class="hover-effect">
-        FROM bun:latest
-
-        ENV NODE_ENV=production
-
-        WORKDIR /public
-
-        COPY ["bun.lockb", "package.json", "./"]
-
-        RUN bun install
-
-        COPY . .
-
-        CMD ["bun", "run", "start"]
-      </pre>
-    </section>
-
-    <section>
-      <h2>Explanation of the Dockerfile:</h2>
-      <ul>
-        <li><strong>FROM bun:latest:</strong> Uses the official Bun image as the base, optimized for Bun's JavaScript runtime.</li>
-        <li><strong>ENV NODE_ENV=production:</strong> Sets the environment variable for production, optimizing for performance in live environments.</li>
-        <li><strong>WORKDIR /public:</strong> Sets `/public` as the working directory inside the container where your application files will live.</li>
-        <li><strong>COPY ["bun.lockb", "package.json", "./"]:</strong> Copies the Bun lockfile and package manifest to ensure consistent dependency management.</li>
-        <li><strong>RUN bun install:</strong> Installs dependencies defined in `bun.lockb` and `package.json` using Bun.</li>
-        <li><strong>COPY . .:</strong> Copies the rest of your application code into the container.</li>
-        <li><strong>CMD ["bun", "run", "start"]:</strong> Defines the default command to run the application using Bun.</li>
-      </ul>
-    </section>
-
-    <section class="improvement">
-      <h2>Improvements & Best Practices</h2>
-      <p>
-        <strong>Enhance your Dockerfile's performance, security, and reliability:</strong>
-      </p>
-      <ul>
-        <li><span class="note">Optimizing Docker Caching: Separate dependency installation from application copy to cache layers efficiently.</span></li>
-        <li>Ensure sensitive files (like `.env` and `.git`) are excluded by adding a <code>.dockerignore</code> file to your project.</li>
-        <li>For added reliability, consider adding a health check to monitor the status of the container and automatically restart it if needed.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Example `.dockerignore` File</h2>
-      <pre class="hover-effect">
-        .git
-        node_modules
-        .env
-        *.log
-      </pre>
-    </section>
-
-    <footer>
-      <p>Dockerfile by YourName | A Creative Guide for Node.js and Bun Applications</p>
-    </footer>
+  <!-- Search Section -->
+  <div class="search-container">
+    <input type="text" id="search-box" placeholder="Search for content..." oninput="performSearch()">
   </div>
+
+  <!-- Search Results Section -->
+  <div class="content" id="content">
+    <ul id="search-results" class="search-results">
+      <!-- Search results will appear here -->
+    </ul>
+  </div>
+
+  <!-- about:blank Section -->
+  <div class="aboutblank" id="aboutblank">
+    <div class="show-blank">
+      <p>about:blank</p>
+      <p>This is a blank placeholder page.</p>
+    </div>
+  </div>
+
+  <footer>
+    Proxy Example | Created for Dynamic Pages
+  </footer>
+
+  <script>
+    // Simulate some content for search results
+    const sampleContent = [
+      'Node.js Dockerfile Guide',
+      'Bun.js Setup Instructions',
+      'Proxy Server in Node.js',
+      'Setting up Art Class Dockerfile',
+      'Managing Docker Images for Node.js'
+    ];
+
+    // Perform search and display results
+    function performSearch() {
+      const searchQuery = document.getElementById('search-box').value.toLowerCase();
+      const results = sampleContent.filter(item => item.toLowerCase().includes(searchQuery));
+      const resultsContainer = document.getElementById('search-results');
+      const contentSection = document.getElementById('content');
+      const aboutBlankSection = document.getElementById('aboutblank');
+
+      // Toggle about:blank visibility if no results
+      if (results.length === 0) {
+        contentSection.style.display = 'none';
+        aboutBlankSection.style.display = 'block';
+      } else {
+        contentSection.style.display = 'block';
+        aboutBlankSection.style.display = 'none';
+      }
+
+      // Clear previous results
+      resultsContainer.innerHTML = '';
+
+      // Display results
+      results.forEach(result => {
+        const listItem = document.createElement('li');
+        listItem.textContent = result;
+        resultsContainer.appendChild(listItem);
+      });
+    }
+  </script>
 
 </body>
 </html>
