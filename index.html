@@ -1,133 +1,219 @@
-import random
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DnD Adventure Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DnD Adventure Game</h1>
+        <div id="game">
+            <div id="output"></div>
+            <div id="actions"></div>
+        </div>
+    </div>
 
-def create_character():
-    return {
-        "name": input("Enter your character's name: "),
-        "class": input("Choose your class (e.g., Warrior, Mage, Rogue): "),
-        "inventory": [],
-        "health": 100,
-        "damage": random.randint(10, 20)  # Added base damage
-    }
+    <script>
+        class Character {
+            constructor(name, charClass) {
+                this.name = name;
+                this.charClass = charClass;
+                this.inventory = [];
+                this.health = 100;
+                this.damage = Math.floor(Math.random() * 11) + 10; // Random damage between 10-20
+            }
+        }
 
-def random_spawn():
-    locations = ["a dark forest", "a bustling city", "a desolate desert", "a snowy mountain", "an abandoned castle"]
-    return random.choice(locations)
+        class Game {
+            constructor() {
+                this.character = null;
+                this.locations = ["a dark forest", "a bustling city", "a desolate desert", "a snowy mountain", "an abandoned castle"];
+                this.spawnLocation = "";
+                this.init();
+            }
 
-def display_inventory(inventory):
-    if inventory:
-        print("Your inventory contains:")
-        for item in inventory:
-            print(f"- {item}")
-    else:
-        print("Your inventory is empty.")
+            init() {
+                const output = document.getElementById("output");
+                const actions = document.getElementById("actions");
+                output.innerHTML = "<p>Welcome to the DnD Adventure Game!</p>";
 
-def fight_beast(character):
-    beast_health = random.randint(20, 50)
-    print(f"A wild beast appears with {beast_health} health!")
+                actions.innerHTML = `
+                    <label>Enter your character's name: <input id="charName" type="text"></label><br>
+                    <label>Choose your class: 
+                        <select id="charClass">
+                            <option value="Warrior">Warrior</option>
+                            <option value="Mage">Mage</option>
+                            <option value="Rogue">Rogue</option>
+                        </select>
+                    </label><br>
+                    <button onclick="game.createCharacter()">Start Game</button>
+                `;
+            }
 
-    while beast_health > 0 and character["health"] > 0:
-        action = input("Do you attack (a) or try to run (r)? ").lower()
-        if action == "a":
-            damage = character["damage"]
-            beast_health -= damage
-            print(f"You hit the beast for {damage} damage. Beast's health is now {beast_health}.")
+            createCharacter() {
+                const name = document.getElementById("charName").value;
+                const charClass = document.getElementById("charClass").value;
 
-            if beast_health > 0:
-                beast_damage = random.randint(5, 15)
-                character["health"] -= beast_damage
-                print(f"The beast attacks you for {beast_damage} damage. Your health is now {character['health']}.")
+                if (!name) {
+                    alert("Please enter a name.");
+                    return;
+                }
 
-        elif action == "r":
-            if random.choice([True, False]):
-                print("You successfully escaped!")
-                return
-            else:
-                print("You failed to escape!")
-                beast_damage = random.randint(5, 15)
-                character["health"] -= beast_damage
-                print(f"The beast attacks you for {beast_damage} damage. Your health is now {character['health']}.")
-        else:
-            print("Invalid action. The beast takes the opportunity to attack!")
-            beast_damage = random.randint(5, 15)
-            character["health"] -= beast_damage
-            print(f"The beast attacks you for {beast_damage} damage. Your health is now {character['health']}.")
+                this.character = new Character(name, charClass);
+                this.spawnLocation = this.randomSpawn();
 
-    if beast_health <= 0:
-        print("You defeated the beast and found a claw as a trophy.")
-        character["inventory"].append("beast claw")
+                this.updateOutput(`<p>You are ${this.character.name}, the ${this.character.charClass}. You spawn in ${this.spawnLocation}.</p>`);
+                this.showActions();
+            }
 
-    if character["health"] <= 0:
-        print("You were defeated by the beast.")
+            randomSpawn() {
+                return this.locations[Math.floor(Math.random() * this.locations.length)];
+            }
 
-def encounter_event(character):
-    events = [
-        "You find a treasure chest!",
-        "A wild beast appears!",
-        "You meet a mysterious traveler.",
-        "You stumble upon an ancient artifact.",
-        "You fall into a hidden trap!"
-    ]
-    event = random.choice(events)
-    print(event)
+            updateOutput(message) {
+                const output = document.getElementById("output");
+                output.innerHTML += message;
+            }
 
-    if event == "You find a treasure chest!":
-        loot = random.choice(["gold coins", "a magical potion", "a rare gemstone"])
-        print(f"Inside, you find {loot}!")
-        character["inventory"].append(loot)
+            showActions() {
+                const actions = document.getElementById("actions");
+                actions.innerHTML = `
+                    <button onclick="game.checkInventory()">Check Inventory</button>
+                    <button onclick="game.explore()">Explore</button>
+                    <button onclick="game.rest()">Rest</button>
+                    <button onclick="game.exitGame()">Exit Game</button>
+                `;
+            }
 
-    elif event == "A wild beast appears!":
-        fight_beast(character)
+            checkInventory() {
+                if (this.character.inventory.length === 0) {
+                    this.updateOutput("<p>Your inventory is empty.</p>");
+                } else {
+                    this.updateOutput(`<p>Your inventory contains: ${this.character.inventory.join(", ")}.</p>`);
+                }
+            }
 
-    elif event == "You meet a mysterious traveler.":
-        trade = input("Do you trade with the traveler (y/n)? ").lower()
-        if trade == "y":
-            item = random.choice(["a map", "a rare herb", "an enchanted ring"])
-            print(f"The traveler gives you {item} in exchange for a favor.")
-            character["inventory"].append(item)
-        else:
-            print("The traveler walks away.")
+            explore() {
+                const events = [
+                    "You find a treasure chest!",
+                    "A wild beast appears!",
+                    "You meet a mysterious traveler.",
+                    "You stumble upon an ancient artifact.",
+                    "You fall into a hidden trap!"
+                ];
+                const event = events[Math.floor(Math.random() * events.length)];
+                this.updateOutput(`<p>${event}</p>`);
 
-    elif event == "You stumble upon an ancient artifact.":
-        artifact = random.choice(["a glowing sword", "a mystical staff", "a shield of light"])
-        print(f"You discover {artifact}. It feels powerful!")
-        character["inventory"].append(artifact)
+                if (event === "You find a treasure chest!") {
+                    const loot = ["gold coins", "a magical potion", "a rare gemstone"];
+                    const item = loot[Math.floor(Math.random() * loot.length)];
+                    this.updateOutput(`<p>Inside, you find ${item}!</p>`);
+                    this.character.inventory.push(item);
 
-    elif event == "You fall into a hidden trap!":
-        damage = random.randint(5, 20)
-        character["health"] -= damage
-        print(f"You took {damage} damage. Your health is now {character['health']}.")
+                } else if (event === "A wild beast appears!") {
+                    this.fightBeast();
 
-def main():
-    print("Welcome to the DnD Adventure Game!")
-    character = create_character()
-    spawn_location = random_spawn()
-    print(f"You spawn in {spawn_location}.")
+                } else if (event === "You meet a mysterious traveler.") {
+                    if (confirm("Do you trade with the traveler?")) {
+                        const tradeItem = ["a map", "a rare herb", "an enchanted ring"];
+                        const item = tradeItem[Math.floor(Math.random() * tradeItem.length)];
+                        this.updateOutput(`<p>The traveler gives you ${item}.</p>`);
+                        this.character.inventory.push(item);
+                    } else {
+                        this.updateOutput("<p>The traveler walks away.</p>");
+                    }
 
-    while character["health"] > 0:
-        print("\nWhat would you like to do?")
-        print("1. Check inventory")
-        print("2. Explore")
-        print("3. Rest")
-        print("4. Exit game")
+                } else if (event === "You stumble upon an ancient artifact.") {
+                    const artifact = ["a glowing sword", "a mystical staff", "a shield of light"];
+                    const item = artifact[Math.floor(Math.random() * artifact.length)];
+                    this.updateOutput(`<p>You discover ${item}. It feels powerful!</p>`);
+                    this.character.inventory.push(item);
 
-        choice = input("Enter your choice: ")
+                } else if (event === "You fall into a hidden trap!") {
+                    const damage = Math.floor(Math.random() * 16) + 5;
+                    this.character.health -= damage;
+                    this.updateOutput(`<p>You took ${damage} damage. Your health is now ${this.character.health}.</p>`);
+                    if (this.character.health <= 0) {
+                        this.updateOutput("<p>You have perished. Game over.</p>");
+                        this.endGame();
+                    }
+                }
+            }
 
-        if choice == "1":
-            display_inventory(character["inventory"])
-        elif choice == "2":
-            encounter_event(character)
-        elif choice == "3":
-            heal = random.randint(10, 25)
-            character["health"] = min(100, character["health"] + heal)
-            print(f"You rested and regained {heal} health. Your health is now {character['health']}.")
-        elif choice == "4":
-            print("Thank you for playing!")
-            break
-        else:
-            print("Invalid choice. Please try again.")
+            fightBeast() {
+                let beastHealth = Math.floor(Math.random() * 31) + 20;
+                this.updateOutput(`<p>A wild beast appears with ${beastHealth} health!</p>`);
 
-        if character["health"] <= 0:
-            print("You have perished. Game over.")
+                while (beastHealth > 0 && this.character.health > 0) {
+                    const attack = confirm("Do you attack the beast?");
 
-if __name__ == "__main__":
-    main()
+                    if (attack) {
+                        const damage = this.character.damage;
+                        beastHealth -= damage;
+                        this.updateOutput(`<p>You hit the beast for ${damage} damage. Beast's health is now ${beastHealth}.</p>`);
+
+                        if (beastHealth > 0) {
+                            const beastDamage = Math.floor(Math.random() * 11) + 5;
+                            this.character.health -= beastDamage;
+                            this.updateOutput(`<p>The beast attacks you for ${beastDamage} damage. Your health is now ${this.character.health}.</p>`);
+                        }
+                    } else {
+                        this.updateOutput("<p>You ran away from the beast.</p>");
+                        return;
+                    }
+                }
+
+                if (beastHealth <= 0) {
+                    this.updateOutput("<p>You defeated the beast and found a claw as a trophy.</p>");
+                    this.character.inventory.push("beast claw");
+                }
+
+                if (this.character.health <= 0) {
+                    this.updateOutput("<p>You have perished. Game over.</p>");
+                    this.endGame();
+                }
+            }
+
+            rest() {
+                const heal = Math.floor(Math.random() * 16) + 10;
+                this.character.health = Math.min(100, this.character.health + heal);
+                this.updateOutput(`<p>You rested and regained ${heal} health. Your health is now ${this.character.health}.</p>`);
+            }
+
+            exitGame() {
+                this.updateOutput("<p>Thank you for playing!</p>");
+                this.endGame();
+            }
+
+            endGame() {
+                document.getElementById("actions").innerHTML = "";
+            }
+        }
+
+        const game = new Game();
+    </script>
+</body>
+</html>
