@@ -42,8 +42,18 @@
                 this.name = name;
                 this.charClass = charClass;
                 this.inventory = [];
-                this.health = 100;
-                this.damage = Math.floor(Math.random() * 11) + 10; // Random damage between 10-20
+                this.health = charClass === "Warrior" ? 150 : 100;
+                this.damage = charClass === "Mage" ? 25 : charClass === "Rogue" ? 15 : 20;
+            }
+
+            specialAbility() {
+                if (this.charClass === "Mage") {
+                    return "casts a powerful spell";
+                } else if (this.charClass === "Rogue") {
+                    return Math.random() < 0.5 ? "goes invisible and avoids the attack" : "fails to go invisible";
+                } else if (this.charClass === "Warrior") {
+                    return "delivers a mighty blow";
+                }
             }
         }
 
@@ -112,6 +122,7 @@
                     <button onclick="game.checkInventory()">Check Inventory</button>
                     <button onclick="game.explore()">Explore</button>
                     <button onclick="game.rest()">Rest</button>
+                    <button onclick="game.fightBeast()">Fight Beast</button>
                     <button onclick="game.exitGame()">Exit Game</button>
                 `;
             }
@@ -142,14 +153,19 @@
                     const attack = confirm("Do you attack the beast?");
 
                     if (attack) {
-                        const playerDamage = this.character.damage;
-                        beastHealth -= playerDamage;
-                        this.updateOutput(`<p>You hit the beast for ${playerDamage} damage. Beast's health is now ${beastHealth}.</p>`);
+                        const special = this.character.specialAbility();
+                        if (this.character.charClass === "Rogue" && special.includes("avoids")) {
+                            this.updateOutput("<p>You avoided the beast's attack!</p>");
+                        } else {
+                            const playerDamage = this.character.damage;
+                            beastHealth -= playerDamage;
+                            this.updateOutput(`<p>You ${special} and hit the beast for ${playerDamage} damage. Beast's health is now ${beastHealth}.</p>`);
 
-                        if (beastHealth > 0) {
-                            const beastDamage = Math.floor(Math.random() * 11) + 5;
-                            this.character.health -= beastDamage;
-                            this.updateOutput(`<p>The beast attacks you for ${beastDamage} damage. Your health is now ${this.character.health}.</p>`);
+                            if (beastHealth > 0) {
+                                const beastDamage = Math.floor(Math.random() * 11) + 5;
+                                this.character.health -= beastDamage;
+                                this.updateOutput(`<p>The beast attacks you for ${beastDamage} damage. Your health is now ${this.character.health}.</p>`);
+                            }
                         }
                     } else {
                         this.updateOutput("<p>You ran away from the beast.</p>");
@@ -170,7 +186,7 @@
 
             rest() {
                 const heal = Math.floor(Math.random() * 16) + 10;
-                this.character.health = Math.min(100, this.character.health + heal);
+                this.character.health = Math.min(this.character.charClass === "Warrior" ? 150 : 100, this.character.health + heal);
                 this.updateOutput(`<p>You rested and regained ${heal} health. Your health is now ${this.character.health}.</p>`);
             }
 
