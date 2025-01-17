@@ -3,116 +3,102 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enhanced Proxy</title>
+  <title>Enhanced Proxy Page</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: white;
+      font-family: 'Arial', sans-serif;
       margin: 0;
+      padding: 0;
+      background-color: #f4f7fc;
+      color: #333;
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
 
-    h1 {
-      font-size: 3em;
-      margin-bottom: 10px;
+    header {
+      background-color: #1e90ff;
+      color: #fff;
+      padding: 20px;
       text-align: center;
     }
 
-    p {
-      font-size: 1.2em;
-      margin-bottom: 30px;
-      text-align: center;
+    header h1 {
+      font-size: 2.5em;
+      margin: 0;
     }
 
-    .button {
-      padding: 15px 30px;
-      margin: 10px;
-      font-size: 1.2em;
-      cursor: pointer;
+    .iframe-wrapper {
+      position: relative;
+      height: 80vh;
+      width: 100%;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
       border: none;
-      border-radius: 30px;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      transition: background 0.3s, transform 0.2s;
-    }
-
-    .button:hover {
-      background: rgba(255, 255, 255, 0.4);
-      transform: scale(1.1);
-    }
-
-    .button:active {
-      transform: scale(1.05);
+      border-radius: 8px;
     }
 
     footer {
-      position: absolute;
-      bottom: 10px;
+      background-color: #f1f1f1;
       text-align: center;
+      padding: 15px;
       font-size: 0.9em;
+      color: #777;
+    }
+
+    footer a {
+      color: #1e90ff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2em;
+      color: #333;
       opacity: 0.7;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to the Proxy</h1>
-  <p>Launch the proxy in a secure, hidden window or use other features below.</p>
 
-  <!-- Buttons -->
-  <button onclick="launchProxyInAboutBlank()" id="launchab" class="button">
-    Launch Proxy in about:blank
-  </button>
+  <div class="container">
+    <header>
+      <h1>Secure Proxy Browser</h1>
+    </header>
 
-  <footer>
-    &copy; 2025 Proxy App. Built with ❤️ for privacy.
-  </footer>
+    <div class="iframe-wrapper">
+      <iframe src="https://example.com" id="proxyIframe" onload="hideLoading()"></iframe>
+      <div class="loading" id="loadingText">Loading the site...</div>
+    </div>
+
+    <footer>
+      <p>&copy; 2025 Proxy App | <a href="#">Terms of Service</a> | <a href="#">Privacy Policy</a></p>
+    </footer>
+  </div>
 
   <script>
-    function launchProxyInAboutBlank() {
-      // Replace this with your proxy URL
-      const proxyURL = "https://your-dynamic-proxy-domain.example.com";
-
-      const newWindow = window.open('about:blank', '_blank');
-      if (newWindow) {
-        // Inject proxy into the new tab
-        newWindow.document.write(`
-          <html>
-            <head>
-              <title>Proxy</title>
-              <script>
-                // Remove tracking headers for obfuscation
-                fetch = (originalFetch => {
-                  return (...args) => {
-                    const [resource, config] = args;
-                    const updatedConfig = {
-                      ...config,
-                      headers: {
-                        ...config?.headers,
-                        'Referer': '',
-                        'User-Agent': 'Mozilla/5.0 (compatible; Proxy)',
-                      },
-                    };
-                    return originalFetch(resource, updatedConfig);
-                  };
-                })(fetch);
-              </script>
-            </head>
-            <body style="margin:0; padding:0; overflow:hidden; background:#111; color:#fff;">
-              <iframe src="${proxyURL}" style="width:100%; height:100%; border:none;"></iframe>
-            </body>
-          </html>
-        `);
-        newWindow.document.close();
-      } else {
-        // Alert if the new window cannot be opened
-        alert("Unable to open a new window. Please allow pop-ups and try again.");
-      }
+    function hideLoading() {
+      document.getElementById("loadingText").style.display = "none";
     }
   </script>
 </body>
